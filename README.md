@@ -1,6 +1,6 @@
 # 🎵 Suno AI Music Generator Discord Bot
 
-Welcome to the Suno AI Music Generator Bot! 🤖 This bot leverages the [Suno AI API](https://github.com/Malith-Rukshan/Suno-API) to generate custom music tracks based on user inputs directly within Telegram.
+Welcome to the Suno AI Music Generator Bot! 🤖 This bot leverages the [Suno AI API](https://github.com/Malith-Rukshan/Suno-API) to generate custom music tracks based on user inputs directly within Discord Server/DM.
 
 ✍️ Note : This is a **Very Basic Bot Example** demonstrating how to use the [Suno AI API](https://github.com/Malith-Rukshan/Suno-API).
 
