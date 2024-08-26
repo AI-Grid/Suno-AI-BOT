@@ -24,7 +24,7 @@ chat_states = {}
 # Intents and bot initialization
 intents = discord.Intents.all()
 intents.messages = True
-intent.message_content = True 
+intents.message_content = True 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Welcome message
