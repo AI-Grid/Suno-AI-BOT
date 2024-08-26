@@ -1,22 +1,18 @@
-# © [2024] Malith-Rukshan. All rights reserved.
-# Repository: https://github.com/Malith-Rukshan/Suno-AI-BOT
-
-import asyncio
-import logging
 import os
+import logging
+import asyncio
+from dotenv import load_dotenv
 
-from telegram.constants import ParseMode
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, CallbackQueryHandler, filters
+import discord
+from discord.ext import commands
 import suno
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
-logging.getLogger("httpx").setLevel(logging.WARNING)
-
-# Disable SunoAI Logs
-# logging.getLogger("SunoAI").setLevel(logging.WARNING)
 
 # Initialize Suno AI Library
 SUNO_COOKIE = os.getenv("SUNO_COOKIE")
@@ -25,141 +21,107 @@ client = suno.Suno(cookie=SUNO_COOKIE)
 # Store user session data
 chat_states = {}
 
-# Keyboard options for user selection
-def get_base_keyboard():
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🎨 Custom", callback_data="custom")],
-        [InlineKeyboardButton("🏞️ Default", callback_data="default")]
-    ])
+# Intents and bot initialization
+intents = discord.Intents.default()
+intents.messages = True
+bot = commands.Bot(command_prefix='!', intents=intents)
 
-# Welcome message with Markdown
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+# Welcome message
+@bot.command(name='start')
+async def start(ctx):
     welcome_message = (
         "👋 Hello! Welcome to the *Suno AI Music Generator Bot*! 🎶\n\n"
-        "👉 Use /generate to start creating your unique music track. 🚀\n"
-        "👉 Use /credits to check your credits balance.\n\n"
-        "📥 This bot utilizes the [SunoAI API](https://github.com/Malith-Rukshan/Suno-API). You can also deploy your own version of this bot! For more details, visit our [GitHub repo](https://github.com/Malith-Rukshan/Suno-AI-BOT)."
+        "👉 Use !generate to start creating your unique music track. 🚀\n"
+        "👉 Use !credits to check your credits balance.\n\n"
+        "📥 This bot utilizes the [SunoAI API](https://github.com/Malith-Rukshan/Suno-API)."
     )
+    await ctx.send(welcome_message)
 
-    await update.message.reply_markdown(welcome_message,disable_web_page_preview=False)
-
-# Handler for the get credits
-async def credits_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+# Command to check credits
+@bot.command(name='credits')
+async def credits_command(ctx):
     credit_info_message = (
-        "*💰Credits Stat*\n\n"
+        "**💰Credits Stat**\n\n"
         "ᗚ Available : {}\n"
         "ᗚ Usage : {}"
     )
     try:
         credits = await asyncio.to_thread(client.get_credits)
     except Exception as e:
-        return await update.message.reply_text(f"⁉️ Failed to get credits info: {e}")
-    await update.message.reply_text(credit_info_message.format(credits.credits_left,credits.monthly_usage),parse_mode=ParseMode.MARKDOWN)
+        return await ctx.send(f"⁉️ Failed to get credits info: {e}")
+    await ctx.send(credit_info_message.format(credits.credits_left, credits.monthly_usage))
 
-# Handler for the generate command
-async def generate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text('Select mode: custom or not. 🤔', reply_markup=get_base_keyboard())
-    chat_states[update.effective_chat.id] = {}
+# Command to start music generation
+@bot.command(name='generate')
+async def generate(ctx):
+    await ctx.send('Select mode: custom or not. 🤔\nType "custom" or "default".')
+    chat_states[ctx.author.id] = {}
 
 # Command to cancel and clear state
-async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    chat_id = update.effective_chat.id
-    if chat_id in chat_states:
-        chat_states.pop(chat_id, None)
-    await update.message.reply_text('Generation canceled. 🚫 You can start again with /generate.')
+@bot.command(name='cancel')
+async def cancel(ctx):
+    user_id = ctx.author.id
+    if user_id in chat_states:
+        chat_states.pop(user_id, None)
+    await ctx.send('Generation canceled. 🚫 You can start again with !generate.')
 
-# Handler for button presses
-async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    query = update.callback_query
-    await query.answer()
-    chat_id = int(update.effective_chat.id)
-    chat_states[chat_id]['mode'] = query.data
+# Message handler for mode selection and input collection
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
 
-    if query.data == "custom":
-        await query.message.reply_text("🎤 Send lyrics first.")
-    else:
-        await query.message.reply_text("🎤 Send song description.")
-    return await context.application.bot.delete_message(chat_id=query.message.chat.id,message_id=query.message.message_id)
-        
+    user_id = message.author.id
+    if user_id in chat_states and 'mode' not in chat_states[user_id]:
+        if message.content.lower() == "custom":
+            chat_states[user_id]['mode'] = 'custom'
+            await message.channel.send("🎤 Send lyrics first.")
+        elif message.content.lower() == "default":
+            chat_states[user_id]['mode'] = 'default'
+            await message.channel.send("🎤 Send song description.")
+        return
 
-async def onMessage(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    chat_id = int(update.effective_chat.id)
-    # Collects lyrics from the user
-    if chat_id in chat_states and 'mode' in chat_states[chat_id]:
-        if not 'lyrics' in chat_states[chat_id]:
-            chat_states[chat_id]['lyrics'] = update.message.text
-        if chat_states[chat_id].get('mode') == 'custom':
-            if not (chat_id in chat_states and 'tags' in chat_states[chat_id] and "Wait-for-tags" == chat_states[chat_id]['tags']):
-                chat_states[chat_id]['tags'] = "Wait-for-tags"
-                return await update.message.reply_text("🏷️ Now send tags.\n\nExample : Classical")
-    
-    # Collects tags (if custom) / generates music
-    if chat_id in chat_states and 'lyrics' in chat_states[chat_id]:
-        if chat_states[chat_id].get('mode') == 'custom':
-            # Custom music generation logic
-            chat_states[chat_id]['tags'] = update.message.text
-            await update.message.reply_text("Generating your music... please wait. ⏳")
-            try:
-                prompt = f"{chat_states[chat_id]['lyrics']}"
-                tags = f"{chat_states[chat_id]['tags']}"
-                
-                # Generate Custom Music
-                songs = await asyncio.to_thread(
-                    client.generate,
-                    prompt=prompt,
-                    tags=tags,
-                    is_custom=True,
-                    wait_audio=True)
+    if user_id in chat_states and 'mode' in chat_states[user_id]:
+        if 'lyrics' not in chat_states[user_id]:
+            chat_states[user_id]['lyrics'] = message.content
+            if chat_states[user_id]['mode'] == 'custom':
+                chat_states[user_id]['tags'] = "Wait-for-tags"
+                await message.channel.send("🏷️ Now send tags.\n\nExample: Classical")
+            else:
+                await generate_music(message)
+        elif chat_states[user_id]['mode'] == 'custom' and chat_states[user_id]['tags'] == "Wait-for-tags":
+            chat_states[user_id]['tags'] = message.content
+            await generate_music(message)
 
-                for song in songs:
-                    file_path = await asyncio.to_thread(client.download,song=song)
-                    await context.bot.send_audio(chat_id=chat_id, audio=open(file_path, 'rb'), thumbnail=open("thumb.jpg", 'rb'))
-                    os.remove(file_path)
-                if chat_id in chat_states:
-                    chat_states.pop(chat_id, None)
-            except Exception as e:
-                await update.message.reply_text(f"⁉️ Failed to generate music: {e}")
-        else:
-            # Default music generation logic
-            await update.message.reply_text("Generating your music... please wait. ⏳")
-            try:
-                prompt = f"{chat_states[chat_id]['lyrics']}"
+    await bot.process_commands(message)
 
-                # Generate Music by Description
-                songs = await asyncio.to_thread(
-                    client.generate,
-                    prompt=prompt, 
-                    is_custom=False,
-                    wait_audio=True)
-                
-                for song in songs:
-                    file_path = await asyncio.to_thread(client.download,song=song)
-                    await context.bot.send_audio(chat_id=chat_id, audio=open(file_path, 'rb'), thumbnail=open("thumb.jpg", 'rb'))
-                    os.remove(file_path)
-                if chat_id in chat_states:
-                    chat_states.pop(chat_id, None)
-            except Exception as e:
-                await update.message.reply_text(f"⁉️ Failed to generate music: {e}")
-        
-        if chat_id in chat_states:
-            chat_states.pop(chat_id, None)
-    
+async def generate_music(message):
+    user_id = message.author.id
+    await message.channel.send("Generating your music... please wait. ⏳")
+    try:
+        prompt = chat_states[user_id]['lyrics']
+        is_custom = chat_states[user_id]['mode'] == 'custom'
 
-def main():
+        tags = chat_states[user_id].get('tags', None)
 
-    BOT_TOKEN = os.getenv("BOT_TOKEN")
+        # Generate Music
+        songs = await asyncio.to_thread(
+            client.generate,
+            prompt=prompt,
+            tags=tags if is_custom else None,
+            is_custom=is_custom,
+            wait_audio=True
+        )
 
-    application = Application.builder().token(BOT_TOKEN).build()
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("generate", generate))
-    application.add_handler(CommandHandler("cancel", cancel))
-    application.add_handler(CallbackQueryHandler(button_handler))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, onMessage))
-    application.add_handler(CommandHandler("credits", credits_command))
+        for song in songs:
+            file_path = await asyncio.to_thread(client.download, song=song)
+            await message.channel.send(file=discord.File(file_path, filename="generated_music.mp3"))
+            os.remove(file_path)
 
-    # Run the bot until the user presses Ctrl-C
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+        chat_states.pop(user_id, None)
+    except Exception as e:
+        await message.channel.send(f"⁉️ Failed to generate music: {e}")
+        chat_states.pop(user_id, None)
 
-
-if __name__ == "__main__":
-    main()
+# Run the bot
+bot.run(os.getenv("BOT_TOKEN"))
