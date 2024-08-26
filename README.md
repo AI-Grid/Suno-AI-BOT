@@ -18,17 +18,15 @@ Welcome to the Suno AI Music Generator Bot! 🤖 This bot leverages the [Suno AI
 
 ### 🔧 Prerequisites
 
-- A registered Telegram Bot Token (obtain one from [BotFather](https://t.me/botfather))
+- A registered Discord Bot Token (obtain one from [Discord Dev Page](https://t.me/botfather))
 - Access to Suno AI API with a valid cookie - [Tutorial](https://github.com/Malith-Rukshan/Suno-API/tree/main?tab=readme-ov-file#-prerequisites)
 
 ### On PasS
 
 Set `SUNO_COOKIE` and `BOT_TOKEN` as Environmental variables.
 
-[![Deploy with heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/Malith-Rukshan/Suno-AI-BOT)
-
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/Malith-Rukshan/Suno-AI-BOT)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/AI-Grid/Suno-AI-BOT-discord/)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/AI-Grid/Suno-AI-BOT-discord/)
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
 
 ### Locally
@@ -36,7 +34,7 @@ Set `SUNO_COOKIE` and `BOT_TOKEN` as Environmental variables.
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/Malith-Rukshan/Suno-AI-BOT.git
+    git clone https://github.com/AI-Grid/Suno-AI-BOT-discord
     cd Suno-AI-BOT
     ```
 
@@ -49,10 +47,10 @@ Set `SUNO_COOKIE` and `BOT_TOKEN` as Environmental variables.
 3. **Set Environment Variables:**
 
     Set the `BOT_TOKEN` and `SUNO_COOKIE` in your environment variables or directly in the code.
-
+    change your .env file:
     ```bash
-    export BOT_TOKEN='your_bot_token_here'
-    export SUNO_COOKIE='your_suno_cookie_here'
+   BOT_TOKEN='your_bot_token_here'
+   SUNO_COOKIE='your_suno_cookie_here'
     ```
 
 4. **Run the Bot:**
@@ -65,10 +63,10 @@ Set `SUNO_COOKIE` and `BOT_TOKEN` as Environmental variables.
 
 Interact with your bot on Telegram using the following commands:
 
-- `/start` - Welcome message and basic bot information.
-- `/generate` - Starts the music generation process.
-- `/credits` - Shows the current credit balance and usage.
-- `/cancel` - Cancels the current operation and resets the session.
+- `!start` - Welcome message and basic bot information.
+- `!generate` - Starts the music generation process.
+- `!credits` - Shows the current credit balance and usage.
+- `!cancel` - Cancels the current operation and resets the session.
 
 ## 🤝 Contributing
 
@@ -78,7 +76,7 @@ Contributions to the Suno AI Music Generator Bot are welcome! Please feel free t
 All content and music generated through this bot are credited to [Suno AI](https://suno.ai/). This Bot by unofficial API provides a convenient way to interact with Suno AI's services but does not claim any ownership or rights over the music generated. Please respect  the terms of service of Suno AI when using their platform ❤️.
 
 > This bot is intended primarily for educational and development purposes. It aims to enhance and simplify access to Suno AI's music generation capabilities. If you enjoy the music generated, consider supporting Suno AI directly.
-> Based on [Python Telegram BOT API](https://github.com/python-telegram-bot/python-telegram-bot).
+> Based on Suno Telegram Bot by [@MalithRukshan](https://t.me/MalithRukshan)
 
 ## ⚖️ License
 This project is distributed under the MIT License. This license allows everyone to use, modify, and redistribute the code. However, it comes with no warranties regarding its functionality. For more details, see the [LICENSE](https://github.com/Malith-Rukshan/Suno-API/blob/main/LICENSE) file in the repository.
