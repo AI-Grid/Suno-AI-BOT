@@ -22,8 +22,9 @@ client = suno.Suno(cookie=SUNO_COOKIE)
 chat_states = {}
 
 # Intents and bot initialization
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.messages = True
+intent.message_content = True 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Welcome message
