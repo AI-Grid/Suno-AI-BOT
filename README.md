@@ -18,7 +18,7 @@ Welcome to the Suno AI Music Generator Bot! 🤖 This bot leverages the [Suno AI
 
 ### 🔧 Prerequisites
 
-- A registered Discord Bot Token (obtain one from [Discord Dev Page](https://t.me/botfather))
+- A registered Discord Bot Token (obtain one from [Discord Dev Page](https://discord.com/developers/applications/)
 - Access to Suno AI API with a valid cookie - [Tutorial](https://github.com/Malith-Rukshan/Suno-API/tree/main?tab=readme-ov-file#-prerequisites)
 
 ### On PasS
