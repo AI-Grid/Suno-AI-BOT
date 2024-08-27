@@ -15,6 +15,10 @@ Branches:
 
 -  [Php-Api](https://github.com/AI-Grid/Suno-AI-BOT/tree/php-api)
 
+## Instruction for each branch
+
+[Instruction is here](https://github.com/AI-Grid/Suno-AI-BOT/blob/note/Instruction.md)
+
 ## 🤝 Contributing
 
 Contributions to the Suno AI Music Generator Bot are welcome! Please feel free to fork the repository, make changes, and submit pull requests.
