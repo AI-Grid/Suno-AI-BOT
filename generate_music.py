@@ -9,8 +9,18 @@ app = Flask(__name__)
 SUNO_COOKIE = os.getenv("SUNO_COOKIE")
 client = suno.Suno(cookie=SUNO_COOKIE)
 
+# Define your API key
+API_KEY = os.getenv("API_KEY")
+
+def check_api_key(key):
+    return key == API_KEY
+
 @app.route('/generate', methods=['POST'])
 async def generate_music():
+    api_key = request.headers.get('X-API-KEY')
+    if not check_api_key(api_key):
+        return jsonify({'error': 'Unauthorized'}), 401
+
     data = request.json
     prompt = data.get('input')
     mode = data.get('mode', 'default')  # 'custom' or 'default'
