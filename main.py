@@ -74,7 +74,12 @@ async def check_password(ctx):
         await ctx.author.send("⏰ Timeout. You did not provide the password in time.")
         return False
 
+#remove discord default help command
+
+bot.remove_command('help')
+
 # Help message
+
 @bot.command(name='help')
 async def help_command(ctx):
     if not await is_authorized(ctx):
