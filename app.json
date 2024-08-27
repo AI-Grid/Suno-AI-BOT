@@ -1,6 +1,6 @@
 {
     "name": "Suno-AI-BOT",
-    "description": "A Telegram BOT for interacting with Suno AI's music generator by SunoAI API.",
+    "description": "A discord BOT for interacting with Suno AI's music generator by SunoAI API.",
     "repository": "https://github.com/AI-Grid/Suno-AI-BOT-discord/",
     "keywords": [
         "ai music",
