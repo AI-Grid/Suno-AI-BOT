@@ -1,4 +1,5 @@
 rocketchat-API
+rocket-python
 python-dotenv
 pynacl
 SunoAI
