@@ -4,11 +4,16 @@ Welcome to the Suno AI Music Generator Bot/Php Api! 🤖 This bot leverages the 
 
 ✍️ Note : This is a **Very Basic Code** using api from [Suno AI API](https://github.com/Malith-Rukshan/Suno-API).
 Branches:
-[Discord](https://github.com/AI-Grid/Suno-AI-BOT/tree/discord)
-[Telegram](https://github.com/AI-Grid/Suno-AI-BOT/tree/telegram)
-[Matrix.org](https://github.com/AI-Grid/Suno-AI-BOT/tree/matrix.org)
-[RocketChat](https://github.com/AI-Grid/Suno-AI-BOT/tree/rocketchat)
-[Php-Api](https://github.com/AI-Grid/Suno-AI-BOT/tree/php-api)
+
+-  [Discord](https://github.com/AI-Grid/Suno-AI-BOT/tree/discord)
+
+-  [Telegram](https://github.com/AI-Grid/Suno-AI-BOT/tree/telegram)
+
+-  [Matrix.org](https://github.com/AI-Grid/Suno-AI-BOT/tree/matrix.org)
+
+-  [RocketChat](https://github.com/AI-Grid/Suno-AI-BOT/tree/rocketchat)
+
+-  [Php-Api](https://github.com/AI-Grid/Suno-AI-BOT/tree/php-api)
 
 ## 🤝 Contributing
 
