@@ -27,10 +27,12 @@ Welcome to the Suno AI Music Generator Bot! 🤖 This bot leverages the [Suno AI
 Set `SUNO_COOKIE` and `BOT_TOKEN` as Environmental variables. Remember also to add `REQUIRED_ROLE` for your server and `BOT_PASSWORD` for authentication on dm
 so example
 ```bash
-BOT_TOKEN=your_discord_bot_token_here
-SUNO_COOKIE=your_suno_cookie_here
-REQUIRED_ROLE=YourRoleName
-BOT_PASSWORD=your_secure_password
+SUNO_COOKIE =
+MATRIX_HOMESERVER = 
+MATRIX_USER = 
+MATRIX_PASSWORD = 
+REQUIRED_ROOM =
+BOT_PASSWORD = 
  ```
 ### Locally
 
@@ -53,10 +55,14 @@ BOT_PASSWORD=your_secure_password
     Set the `BOT_TOKEN` and `SUNO_COOKIE` in your environment variables or directly in the code.
     change your .env file:
     ```bash
-   BOT_TOKEN='your_bot_token_here'
-   SUNO_COOKIE='your_suno_cookie_here'
-   REQUIRED_ROLE='YourRoleName'
-   BOT_PASSWORD='your_secure_password'
+    
+SUNO_COOKIE =
+MATRIX_HOMESERVER = 
+MATRIX_USER = 
+MATRIX_PASSWORD = 
+REQUIRED_ROOM =
+BOT_PASSWORD = 
+
     ```
 
 4. **Run the Bot:**
