@@ -13,3 +13,4 @@ downloads/
 
 # Python venv
 .venv
+.env
