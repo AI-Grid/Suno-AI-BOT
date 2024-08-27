@@ -69,9 +69,9 @@ BOT_PASSWORD=your_secure_password
 
 Interact with your bot on Telegram using the following commands:
 
-- `!start` - Welcome message and basic bot information.
+- `!help` - Welcome message and basic bot information.
 - `!generate` - Starts the music generation process.
-- `!cancel` - Cancels the current operation and resets the session.
+- `!stop` - Cancels the current operation and resets the session.
 
 ## 🤝 Contributing
 
