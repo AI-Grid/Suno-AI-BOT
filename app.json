@@ -14,6 +14,12 @@
         },
         "BOT_TOKEN": {
             "description": "Obtain one from discord dev page"
+        },
+        "REQUIRED_ROLE": {
+            "description": "role name of your discord server"
+        },
+        "BOT_PASSWORD": {
+            "description": "password for bot"
         }
     },
     "buildpacks": [
