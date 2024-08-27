@@ -96,8 +96,8 @@ Join our Telegram channels,
 
 ## 📬 Contact
 If you have any questions, feedback, or just want to say hi, you can reach out to me:
-- Me : [Martynka Adamski](https://my.secondlife.com/martynka.adamski)
+- Me : [Marty](https://my.secondlife.com/martynka.adamski)
 - Original Developer of Suno API: [@MalithRukshan](https://t.me/MalithRukshan)
 - Suno AI Support Group on Telegram : [@Suno_API](https://t.me/Suno_API)
 
-🧑‍💻 Redesigned for work in Discord by [💖MartySL💖](https://my.secondlife.com/martynka.adamski) originaly Built by [@MalithRukshan](https://t.me/MalithRukshan) with 💖 for Telegram by [Single Developers </> ](https://t.me/SingleDevelopers)
+🧑‍💻 Redesigned for work in Discord by [💖Marty💖](https://my.secondlife.com/martynka.adamski) originaly Built by [@MalithRukshan](https://t.me/MalithRukshan) with 💖 for Telegram by [Single Developers </> ](https://t.me/SingleDevelopers)
