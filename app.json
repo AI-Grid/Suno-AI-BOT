@@ -1,7 +1,7 @@
 {
     "name": "Suno-AI-BOT",
     "description": "A Telegram BOT for interacting with Suno AI's music generator by SunoAI API.",
-    "repository": "https://github.com/Malith-Rukshan/Suno-AI-BOT",
+    "repository": "https://github.com/AI-Grid/Suno-AI-BOT-discord/",
     "keywords": [
         "ai music",
         "suno ai",
@@ -13,7 +13,7 @@
             "description": "Sign up on the suno.ai website and obtain your cookie. Refer README.md file to tutorial."
         },
         "BOT_TOKEN": {
-            "description": "Obtain one from [BotFather](https://t.me/botfather)"
+            "description": "Obtain one from discord dev page"
         }
     },
     "buildpacks": [
