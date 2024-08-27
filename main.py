@@ -83,7 +83,7 @@ async def start(ctx):
     welcome_message = (
         "👋 Hello! Welcome to the *Suno AI Music Generator Bot*! 🎶\n\n"
         "👉 Use !generate to start creating your unique music track. 🚀\n"
-        "📥 This bot utilizes the [SunoAI API](https://github.com/Malith-Rukshan/Suno-API)."
+        "📥 Bot was made by [Marty](https://main.easierit.org). This bot utilizes the [SunoAI API](https://github.com/Malith-Rukshan/Suno-API)."
     )
     await ctx.send(welcome_message)
 
