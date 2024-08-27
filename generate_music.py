@@ -3,6 +3,7 @@ import os
 import asyncio
 import suno
 
+load_dotenv()
 app = Flask(__name__)
 
 # Initialize Suno AI Library
