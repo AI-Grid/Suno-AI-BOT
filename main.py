@@ -84,8 +84,9 @@ bot.remove_command('help')
 async def help_command(ctx):
     help_message = (
         "👋 Hello! Welcome to the *Suno AI Music Generator Bot*! 🎶\n\n"
-        "👉 Use !help to show this basic information 🎶\n\n"
+        "👉 Use !help to show this basic help information 🎶\n\n"
         "👉 Use !generate to start creating your unique music track. (Remember you need rank or password) 🚀\n"
+        "👉 Use !stop to cancel all and clear memory to start over 🚀\n"
         "📥 I was made by [Marty](https://main.easierit.org). This bot utilizes the [SunoAI API](https://github.com/Malith-Rukshan/Suno-API)."
     )
     await ctx.send(help_message)
