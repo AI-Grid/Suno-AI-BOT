@@ -1,4 +1,4 @@
-discord.py
+rocketchat-API
 python-dotenv
 pynacl
 SunoAI
