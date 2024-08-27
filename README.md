@@ -10,8 +10,8 @@ Welcome to the Suno AI Music Generator Bot! 🤖 This bot leverages the [Suno AI
 ## 🌟 Features
 
 - **🎶 Music Generation**: Generate music by providing custom lyrics or a description.
-- **🖱️ Interactive Commands**: Simple commands to start music generation, check credits, and cancel ongoing operations.
-- **👥 Simple Interface**: Easy to use with inline buttons for quick selections.
+- **🖱️ Interactive Commands**: Simple commands to start music generation, and cancel ongoing operations.
+- **👥 Simple Interface**: Easy to use via commands.
 
 ## 🚀 Deployment
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/AI-Grid/Suno-AI-BOT-discord/)
@@ -92,13 +92,12 @@ If you found this project helpful, **don't forget to give it a ⭐ on GitHub.** 
 Join our Telegram channels, 
 
 - [@SingleDevelopers](https://t.me/SingleDevelopers), for more amazing projects and updates ✓
-- [@SunoAPI](https://t.me/SunoAPI), for this project updates ✓
+
 
 ## 📬 Contact
 If you have any questions, feedback, or just want to say hi, you can reach out to me:
-
-- Original Developer : [@MalithRukshan](https://t.me/MalithRukshan)
 - Me : [Martynka Adamski](https://my.secondlife.com/martynka.adamski)
+- Original Developer of Suno API: [@MalithRukshan](https://t.me/MalithRukshan)
 - Suno AI Support Group on Telegram : [@Suno_API](https://t.me/Suno_API)
 
-🧑‍💻 Redesigned by [💖Martynka Adamski💖](https://my.secondlife.com/martynka.adamski) originaly Built with 💖 for Telegram by [Single Developers </> ](https://t.me/SingleDevelopers)
+🧑‍💻 Redesigned for work in Discord by [💖MartySL💖](https://my.secondlife.com/martynka.adamski) originaly Built by [@MalithRukshan](https://t.me/MalithRukshan) with 💖 for Telegram by [Single Developers </> ](https://t.me/SingleDevelopers)
