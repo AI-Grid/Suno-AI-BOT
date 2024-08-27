@@ -87,7 +87,7 @@ async def help_command(ctx):
         "👉 Use !help to show this basic help information 🎶\n\n"
         "👉 Use !generate to start creating your unique music track. (Remember you need rank or password) 🚀\n"
         "👉 Use !stop to cancel all and clear memory to start over 🚀\n"
-        "📥 I was made by [Marty](https://main.easierit.org). This bot utilizes the [SunoAI API](https://github.com/Malith-Rukshan/Suno-API)."
+        "📥 I was made by [Marty](https://main.easierit.org). You can take own hosted version from [AI-Grid Github](https://github.com/AI-Grid/Suno-AI-BOT-discord/) This bot utilizes the [SunoAI API](https://github.com/Malith-Rukshan/Suno-API)."
     )
     await ctx.send(help_message)
 
