@@ -23,8 +23,7 @@ Welcome to the Suno AI Music Generator Bot! 🤖 This bot leverages the [Suno AI
 
 ### On PasS
 
-Set `SUNO_COOKIE` and `BOT_TOKEN` as Environmental variables.
-Remember also to add REQUIRED_ROLE and BOT_PASSWORD for authentication
+Set `SUNO_COOKIE` and `BOT_TOKEN` as Environmental variables. Remember also to add `REQUIRED_ROLE` for your server and `BOT_PASSWORD` for authentication on dm
 
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/AI-Grid/Suno-AI-BOT-discord/)
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/AI-Grid/Suno-AI-BOT-discord/)
