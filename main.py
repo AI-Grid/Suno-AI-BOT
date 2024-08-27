@@ -75,34 +75,35 @@ async def check_password(ctx):
         return False
 
 # Welcome message
-@bot.command(name='start')
+@bot.command(name='help')
 async def start(ctx):
     if not await is_authorized(ctx):
         return
 
     welcome_message = (
         "👋 Hello! Welcome to the *Suno AI Music Generator Bot*! 🎶\n\n"
-        "👉 Use !generate to start creating your unique music track. 🚀\n"
-        "📥 Bot was made by [Marty](https://main.easierit.org). This bot utilizes the [SunoAI API](https://github.com/Malith-Rukshan/Suno-API)."
+        "👋 Use !help to show this basic informatiob 🎶\n\n"
+        "👉 Use !generate to start creating your unique music track. (remember you need rank or password) 🚀\n"
+        "📥 I was made by [Marty](https://main.easierit.org). This bot utilizes the [SunoAI API](https://github.com/Malith-Rukshan/Suno-API)."
     )
     await ctx.send(welcome_message)
 
 # Command to check credits
-@bot.command(name='credits')
-async def credits_command(ctx):
-    if not await is_authorized(ctx):
-        return
+#@bot.command(name='credits')
+#async def credits_command(ctx):
+#    if not await is_authorized(ctx):
+ #       return
 
-    credit_info_message = (
-        "**💰Credits Stat**\n\n"
-        "ᗚ Available : {}\n"
-        "ᗚ Usage : {}"
-    )
-    try:
-        credits = await asyncio.to_thread(client.get_credits)
-    except Exception as e:
-        return await ctx.send(f"⁉️ Failed to get credits info: {e}")
-    await ctx.send(credit_info_message.format(credits.credits_left, credits.monthly_usage))
+    #credit_info_message = (
+     #   "**💰Credits Stat**\n\n"
+      #  "ᗚ Available : {}\n"
+       # "ᗚ Usage : {}"
+    #)
+    #try:
+     #   credits = await asyncio.to_thread(client.get_credits)
+    #except Exception as e:
+    #    return await ctx.send(f"⁉️ Failed to get credits info: {e}")
+   # await ctx.send(credit_info_message.format(credits.credits_left, credits.monthly_usage))
 
 # Command to start music generation
 @bot.command(name='generate')
