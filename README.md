@@ -56,6 +56,8 @@ BOT_PASSWORD=your_secure_password
     ```bash
    BOT_TOKEN='your_bot_token_here'
    SUNO_COOKIE='your_suno_cookie_here'
+   REQUIRED_ROLE='YourRoleName'
+   BOT_PASSWORD='your_secure_password'
     ```
 
 4. **Run the Bot:**
