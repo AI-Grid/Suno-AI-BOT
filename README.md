@@ -55,15 +55,13 @@ BOT_PASSWORD =
     Set the `BOT_TOKEN` and `SUNO_COOKIE` in your environment variables or directly in the code.
     change your .env file:
     ```bash
-    
-SUNO_COOKIE =
-MATRIX_HOMESERVER = 
-MATRIX_USER = 
-MATRIX_PASSWORD = 
-REQUIRED_ROOM =
-BOT_PASSWORD = 
-
-    ```
+    SUNO_COOKIE =
+    MATRIX_HOMESERVER =
+    MATRIX_USER =
+    MATRIX_PASSWORD =
+    REQUIRED_ROOM =
+    BOT_PASSWORD =
+     ```
 
 4. **Run the Bot:**
 
