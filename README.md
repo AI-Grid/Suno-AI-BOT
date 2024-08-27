@@ -72,7 +72,6 @@ Interact with your bot on Telegram using the following commands:
 
 - `!start` - Welcome message and basic bot information.
 - `!generate` - Starts the music generation process.
-- `!credits` - Shows the current credit balance and usage.
 - `!cancel` - Cancels the current operation and resets the session.
 
 ## 🤝 Contributing
