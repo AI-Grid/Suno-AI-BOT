@@ -1,4 +1,4 @@
-# 🎵 Suno AI Music Generator Discord Bot
+# 🎵 Suno AI Music Generator RocketChat Bot
 
 Welcome to the Suno AI Music Generator Bot! 🤖 This bot leverages the [Suno AI API](https://github.com/Malith-Rukshan/Suno-API) to generate custom music tracks based on user inputs directly within Discord Server/DM with Rank/Password protection.
 
