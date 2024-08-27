@@ -82,9 +82,6 @@ bot.remove_command('help')
 
 @bot.command(name='help')
 async def help_command(ctx):
-    if not await is_authorized(ctx):
-        return
-
     help_message = (
         "👋 Hello! Welcome to the *Suno AI Music Generator Bot*! 🎶\n\n"
         "👉 Use !help to show this basic information 🎶\n\n"
