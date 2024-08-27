@@ -20,6 +20,11 @@ client = suno.Suno(cookie=SUNO_COOKIE)
 
 # Store user session data
 chat_states = {}
+password_attempts = {}
+
+# Load security settings from .env
+REQUIRED_ROLE = os.getenv("REQUIRED_ROLE")
+BOT_PASSWORD = os.getenv("BOT_PASSWORD")
 
 # Intents and bot initialization
 intents = discord.Intents.all()
@@ -41,6 +46,9 @@ async def start(ctx):
 # Command to check credits
 @bot.command(name='credits')
 async def credits_command(ctx):
+    if not await is_authorized(ctx):
+        return
+
     credit_info_message = (
         "**💰Credits Stat**\n\n"
         "ᗚ Available : {}\n"
@@ -55,12 +63,18 @@ async def credits_command(ctx):
 # Command to start music generation
 @bot.command(name='generate')
 async def generate(ctx):
+    if not await is_authorized(ctx):
+        return
+
     await ctx.send('Select mode: custom or not. 🤔\nType "custom" or "default".')
     chat_states[ctx.author.id] = {}
 
 # Command to cancel and clear state
 @bot.command(name='cancel')
 async def cancel(ctx):
+    if not await is_authorized(ctx):
+        return
+
     user_id = ctx.author.id
     if user_id in chat_states:
         chat_states.pop(user_id, None)
@@ -123,6 +137,37 @@ async def generate_music(message):
     except Exception as e:
         await message.channel.send(f"⁉️ Failed to generate music: {e}")
         chat_states.pop(user_id, None)
+
+async def is_authorized(ctx):
+    """Check if the user has the required role or provides the correct password."""
+    # Check if user has the required role
+    if REQUIRED_ROLE:
+        role = discord.utils.get(ctx.guild.roles, name=REQUIRED_ROLE)
+        if role in ctx.author.roles:
+            return True
+
+    # Check if user has already provided the correct password
+    if ctx.author.id in password_attempts and password_attempts[ctx.author.id]:
+        return True
+
+    # Prompt for password in DM
+    await ctx.author.send("🔒 You do not have the required role. Please provide the bot password to proceed:")
+    
+    def check(m):
+        return m.author == ctx.author and isinstance(m.channel, discord.DMChannel)
+
+    try:
+        response = await bot.wait_for('message', check=check, timeout=60.0)
+        if response.content == BOT_PASSWORD:
+            password_attempts[ctx.author.id] = True
+            await ctx.author.send("✅ Password accepted! You can now use the bot.")
+            return True
+        else:
+            await ctx.author.send("❌ Incorrect password.")
+            return False
+    except asyncio.TimeoutError:
+        await ctx.author.send("⏰ Timeout. You did not provide the password in time.")
+        return False
 
 # Run the bot
 bot.run(os.getenv("BOT_TOKEN"))
