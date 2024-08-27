@@ -74,36 +74,19 @@ async def check_password(ctx):
         await ctx.author.send("⏰ Timeout. You did not provide the password in time.")
         return False
 
-# Welcome message
+# Help message
 @bot.command(name='help')
-async def start(ctx):
+async def help_command(ctx):
     if not await is_authorized(ctx):
         return
 
-    welcome_message = (
+    help_message = (
         "👋 Hello! Welcome to the *Suno AI Music Generator Bot*! 🎶\n\n"
-        "👋 Use !help to show this basic informatiob 🎶\n\n"
-        "👉 Use !generate to start creating your unique music track. (remember you need rank or password) 🚀\n"
+        "👉 Use !help to show this basic information 🎶\n\n"
+        "👉 Use !generate to start creating your unique music track. (Remember you need rank or password) 🚀\n"
         "📥 I was made by [Marty](https://main.easierit.org). This bot utilizes the [SunoAI API](https://github.com/Malith-Rukshan/Suno-API)."
     )
-    await ctx.send(welcome_message)
-
-# Command to check credits
-#@bot.command(name='credits')
-#async def credits_command(ctx):
-#    if not await is_authorized(ctx):
- #       return
-
-    #credit_info_message = (
-     #   "**💰Credits Stat**\n\n"
-      #  "ᗚ Available : {}\n"
-       # "ᗚ Usage : {}"
-    #)
-    #try:
-     #   credits = await asyncio.to_thread(client.get_credits)
-    #except Exception as e:
-    #    return await ctx.send(f"⁉️ Failed to get credits info: {e}")
-   # await ctx.send(credit_info_message.format(credits.credits_left, credits.monthly_usage))
+    await ctx.send(help_message)
 
 # Command to start music generation
 @bot.command(name='generate')
@@ -114,18 +97,18 @@ async def generate(ctx):
     await ctx.send('Select mode: custom or not. 🤔\nType "custom" or "default".')
     chat_states[ctx.author.id] = {}
 
-# Command to cancel and clear state
-@bot.command(name='cancel')
-async def cancel(ctx):
+# Command to stop and clear state
+@bot.command(name='stop')
+async def stop(ctx):
     if not await is_authorized(ctx):
         return
 
     user_id = ctx.author.id
     if user_id in chat_states:
         del chat_states[user_id]  # Clear the user's state
-        await ctx.send('Generation canceled. 🚫 You can start again with !generate.')
+        await ctx.send('Generation stopped. 🚫 You can start again with !generate.')
     else:
-        await ctx.send('No active session to cancel. 🚫')
+        await ctx.send('No active session to stop. 🚫')
 
 # Message handler for mode selection and input collection
 @bot.event
@@ -134,6 +117,12 @@ async def on_message(message):
         return
 
     user_id = message.author.id
+    
+    # Always check if !stop command was issued
+    if message.content.lower() == "!stop":
+        await stop(message)
+        return
+
     if user_id in chat_states:
         if 'mode' not in chat_states[user_id]:
             if message.content.lower() == "custom":
