@@ -83,7 +83,6 @@ async def start(ctx):
     welcome_message = (
         "👋 Hello! Welcome to the *Suno AI Music Generator Bot*! 🎶\n\n"
         "👉 Use !generate to start creating your unique music track. 🚀\n"
-        "👉 Use !credits to check your credits balance.\n\n"
         "📥 This bot utilizes the [SunoAI API](https://github.com/Malith-Rukshan/Suno-API)."
     )
     await ctx.send(welcome_message)
@@ -122,8 +121,10 @@ async def cancel(ctx):
 
     user_id = ctx.author.id
     if user_id in chat_states:
-        chat_states.pop(user_id, None)
-    await ctx.send('Generation canceled. 🚫 You can start again with !generate.')
+        del chat_states[user_id]  # Clear the user's state
+        await ctx.send('Generation canceled. 🚫 You can start again with !generate.')
+    else:
+        await ctx.send('No active session to cancel. 🚫')
 
 # Message handler for mode selection and input collection
 @bot.event
