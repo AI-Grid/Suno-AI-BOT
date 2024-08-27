@@ -1,18 +1,13 @@
 import os
-import logging
 import asyncio
 from dotenv import load_dotenv
+import nio
 
-import discord
-from discord.ext import commands
+# Import Suno AI library
 import suno
 
 # Load environment variables from .env file
 load_dotenv()
-
-# Configure logging
-logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Initialize Suno AI Library
 SUNO_COOKIE = os.getenv("SUNO_COOKIE")
@@ -23,142 +18,176 @@ chat_states = {}
 password_attempts = {}  # To store successful password attempts
 
 # Get bot settings from environment
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-REQUIRED_ROLE = os.getenv("REQUIRED_ROLE")
+MATRIX_HOMESERVER = os.getenv("MATRIX_HOMESERVER")
+MATRIX_USER = os.getenv("MATRIX_USER")
+MATRIX_PASSWORD = os.getenv("MATRIX_PASSWORD")
+REQUIRED_ROOM = os.getenv("REQUIRED_ROOM")
 BOT_PASSWORD = os.getenv("BOT_PASSWORD")
 
-# Intents and bot initialization
-intents = discord.Intents.all()
-intents.messages = True
-intents.message_content = True 
-bot = commands.Bot(command_prefix='!', intents=intents)
+# Initialize the Matrix client
+matrix_client = nio.AsyncClient(MATRIX_HOMESERVER, MATRIX_USER)
 
-async def is_authorized(ctx):
-    """Check if the user has the required role or provides the correct password."""
-    
-    # If the command is issued in a DM, skip the role check and go straight to password protection
-    if isinstance(ctx.channel, discord.DMChannel):
-        return await check_password(ctx)
-    
-    # If the command is issued in a guild (server), check the role
-    if REQUIRED_ROLE:
-        role = discord.utils.get(ctx.guild.roles, name=REQUIRED_ROLE)
-        if role in ctx.author.roles:
-            return True
-    
-    # Prompt for password in DM if not authorized by role
-    return await check_password(ctx)
-
-async def check_password(ctx):
-    """Check if the user has provided the correct password."""
-    # Check if user has already provided the correct password
-    if ctx.author.id in password_attempts and password_attempts[ctx.author.id]:
+async def is_authorized(room: nio.MatrixRoom, event: nio.RoomMessageText):
+    """Check if the user provides the correct password or is in the correct room."""
+    if room.room_id != REQUIRED_ROOM:
+        return False
+    if event.sender in password_attempts and password_attempts[event.sender]:
         return True
 
-    # Prompt for password in DM
-    await ctx.author.send("🔒 Please provide the bot password to proceed:")
+    await matrix_client.room_send(
+        room_id=event.room_id,
+        message_type="m.room.message",
+        content={
+            "msgtype": "m.text",
+            "body": "🔒 Please provide the bot password to proceed:"
+        }
+    )
 
-    def check(m):
-        return m.author == ctx.author and isinstance(m.channel, discord.DMChannel)
+    def check_response(e):
+        return isinstance(e, nio.RoomMessageText) and e.sender == event.sender
 
     try:
-        response = await bot.wait_for('message', check=check, timeout=60.0)
-        if response.content == BOT_PASSWORD:
-            password_attempts[ctx.author.id] = True
-            await ctx.author.send("✅ Password accepted! You can now use the bot.")
+        response = await matrix_client.sync_forever(timeout=60000, full_state=True)
+        if response.content['body'] == BOT_PASSWORD:
+            password_attempts[event.sender] = True
+            await matrix_client.room_send(
+                room_id=event.room_id,
+                message_type="m.room.message",
+                content={
+                    "msgtype": "m.text",
+                    "body": "✅ Password accepted! You can now use the bot."
+                }
+            )
             return True
         else:
-            await ctx.author.send("❌ Incorrect password.")
+            await matrix_client.room_send(
+                room_id=event.room_id,
+                message_type="m.room.message",
+                content={
+                    "msgtype": "m.text",
+                    "body": "❌ Incorrect password."
+                }
+            )
             return False
     except asyncio.TimeoutError:
-        await ctx.author.send("⏰ Timeout. You did not provide the password in time.")
+        await matrix_client.room_send(
+            room_id=event.room_id,
+            message_type="m.room.message",
+            content={
+                "msgtype": "m.text",
+                "body": "⏰ Timeout. You did not provide the password in time."
+            }
+        )
         return False
 
-#remove discord default help command
-
-bot.remove_command('help')
-
-# Help message
-
-@bot.command(name='help')
-async def help_command(ctx):
-    help_message = (
-        "👋 Hello! Welcome to the *Suno AI Music Generator Bot*! 🎶\n\n"
-        "👉 Use !help to show this basic help information 🎶\n\n"
-        "👉 Use !generate to start creating your unique music track. (Remember you need rank or password) 🚀\n"
-        "👉 Use !stop to cancel all and clear memory to start over 🚀\n"
-        "📥 I was made by [Marty](https://main.easierit.org). You can take own hosted version from [AI-Grid Github](https://github.com/AI-Grid/Suno-AI-BOT-discord/) This bot utilizes the [SunoAI API](https://github.com/Malith-Rukshan/Suno-API)."
-    )
-    await ctx.send(help_message)
-
-# Command to start music generation
-@bot.command(name='generate')
-async def generate(ctx):
-    if not await is_authorized(ctx):
+# Handling text messages
+@matrix_client.event_listener(nio.RoomMessageText)
+async def message_handler(room: nio.MatrixRoom, event: nio.RoomMessageText):
+    if event.sender == matrix_client.user_id:
         return
 
-    await ctx.send('Select mode: custom or not. 🤔\nType "custom" or "default".')
-    chat_states[ctx.author.id] = {}
-
-# Command to stop and clear state
-@bot.command(name='stop')
-async def stop(ctx):
-    if not await is_authorized(ctx):
+    # Handle !help command (no authorization required)
+    if event.body.lower().startswith('!help'):
+        help_message = (
+            "👋 Hello! Welcome to the *Suno AI Music Generator Bot*! 🎶\n\n"
+            "👉 Use !help to show this basic information 🎶\n\n"
+            "👉 Use !generate to start creating your unique music track. 🚀\n"
+            "📥 I was made by [Marty](https://main.easierit.org). This bot utilizes the [SunoAI API](https://github.com/Malith-Rukshan/Suno-API)."
+        )
+        await matrix_client.room_send(
+            room_id=room.room_id,
+            message_type="m.room.message",
+            content={
+                "msgtype": "m.text",
+                "body": help_message
+            }
+        )
         return
 
-    user_id = ctx.author.id
-    if user_id in chat_states:
-        del chat_states[user_id]  # Clear the user's state
-        await ctx.send('Generation stopped. 🚫 You can start again with !generate.')
-    else:
-        await ctx.send('No active session to stop. 🚫')
+    # Handle !generate command
+    if event.body.lower().startswith('!generate'):
+        if not await is_authorized(room, event):
+            return
 
-# Message handler for mode selection and input collection
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
+        await matrix_client.room_send(
+            room_id=room.room_id,
+            message_type="m.room.message",
+            content={
+                "msgtype": "m.text",
+                "body": 'Select mode: custom or not. 🤔\nType "custom" or "default".'
+            }
+        )
+        chat_states[event.sender] = {}
         return
 
-    user_id = message.author.id
-    
-    # Always check if !stop command was issued
-    if message.content.lower() == "!stop":
-        await stop(message)
-        return
-
+    # Continue with music generation process
+    user_id = event.sender
     if user_id in chat_states:
         if 'mode' not in chat_states[user_id]:
-            if message.content.lower() == "custom":
+            if event.body.lower() == "custom":
                 chat_states[user_id]['mode'] = 'custom'
-                await message.channel.send("🎤 Send lyrics first.")
-            elif message.content.lower() == "default":
+                await matrix_client.room_send(
+                    room_id=room.room_id,
+                    message_type="m.room.message",
+                    content={
+                        "msgtype": "m.text",
+                        "body": "🎤 Send lyrics first."
+                    }
+                )
+            elif event.body.lower() == "default":
                 chat_states[user_id]['mode'] = 'default'
-                await message.channel.send("🎤 Send song description.")
+                await matrix_client.room_send(
+                    room_id=room.room_id,
+                    message_type="m.room.message",
+                    content={
+                        "msgtype": "m.text",
+                        "body": "🎤 Send song description."
+                    }
+                )
             return
 
         if 'lyrics' not in chat_states[user_id]:
-            chat_states[user_id]['lyrics'] = message.content
-            await message.channel.send("📝 Please provide a title for your song.")
+            chat_states[user_id]['lyrics'] = event.body
+            await matrix_client.room_send(
+                room_id=room.room_id,
+                message_type="m.room.message",
+                content={
+                    "msgtype": "m.text",
+                    "body": "📝 Please provide a title for your song."
+                }
+            )
             return
 
         if 'title' not in chat_states[user_id]:
-            chat_states[user_id]['title'] = message.content
+            chat_states[user_id]['title'] = event.body
             if chat_states[user_id]['mode'] == 'custom':
                 chat_states[user_id]['tags'] = "Wait-for-tags"
-                await message.channel.send("🏷️ Now send tags.\n\nExample: Classical")
+                await matrix_client.room_send(
+                    room_id=room.room_id,
+                    message_type="m.room.message",
+                    content={
+                        "msgtype": "m.text",
+                        "body": "🏷️ Now send tags.\n\nExample: Classical"
+                    }
+                )
             else:
-                await generate_music(message)
+                await generate_music(event, room)
             return
 
         if chat_states[user_id]['mode'] == 'custom' and chat_states[user_id]['tags'] == "Wait-for-tags":
-            chat_states[user_id]['tags'] = message.content
-            await generate_music(message)
+            chat_states[user_id]['tags'] = event.body
+            await generate_music(event, room)
 
-    await bot.process_commands(message)
-
-async def generate_music(message):
-    user_id = message.author.id
-    await message.channel.send("Generating your music... please wait. ⏳")
+async def generate_music(event, room):
+    user_id = event.sender
+    await matrix_client.room_send(
+        room_id=room.room_id,
+        message_type="m.room.message",
+        content={
+            "msgtype": "m.text",
+            "body": "Generating your music... please wait. ⏳"
+        }
+    )
     try:
         prompt = chat_states[user_id]['lyrics']
         is_custom = chat_states[user_id]['mode'] == 'custom'
@@ -181,16 +210,35 @@ async def generate_music(message):
             new_file_path = f"{title}_v{index + 1}.mp3"
             os.rename(file_path, new_file_path)
             
-            # Upload the file to Discord
-            await message.channel.send(file=discord.File(new_file_path, filename=new_file_path))
+            # Upload the file to Matrix
+            await matrix_client.room_send(
+                room_id=room.room_id,
+                message_type="m.room.message",
+                content={
+                    "msgtype": "m.file",
+                    "filename": new_file_path,
+                    "body": new_file_path,
+                }
+            )
             
             # Remove the file after sending
             os.remove(new_file_path)
 
         chat_states.pop(user_id, None)
     except Exception as e:
-        await message.channel.send(f"⁉️ Failed to generate music: {e}")
+        await matrix_client.room_send(
+            room_id=room.room_id,
+            message_type="m.room.message",
+            content={
+                "msgtype": "m.text",
+                "body": f"⁉️ Failed to generate music: {e}"
+            }
+        )
         chat_states.pop(user_id, None)
 
-# Run the bot
-bot.run(BOT_TOKEN)
+# Log in and run the bot
+async def main():
+    await matrix_client.login(MATRIX_PASSWORD)
+    await matrix_client.sync_forever(timeout=30000)
+
+asyncio.run(main())
