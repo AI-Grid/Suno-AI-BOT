@@ -83,6 +83,7 @@ async def start(ctx):
     welcome_message = (
         "👋 Hello! Welcome to the *Suno AI Music Generator Bot*! 🎶\n\n"
         "👉 Use !generate to start creating your unique music track. 🚀\n"
+        "👉 Use !cancel to cancel process.\n\n"
         "📥 This bot utilizes the [SunoAI API](https://github.com/Malith-Rukshan/Suno-API)."
     )
     await ctx.send(welcome_message)
@@ -145,6 +146,9 @@ async def on_message(message):
     if user_id in chat_states and 'mode' in chat_states[user_id]:
         if 'lyrics' not in chat_states[user_id]:
             chat_states[user_id]['lyrics'] = message.content
+            await message.channel.send("📛 Now, please provide a title for your song.")
+        elif 'title' not in chat_states[user_id]:
+            chat_states[user_id]['title'] = message.content
             if chat_states[user_id]['mode'] == 'custom':
                 chat_states[user_id]['tags'] = "Wait-for-tags"
                 await message.channel.send("🏷️ Now send tags.\n\nExample: Classical")
@@ -162,7 +166,7 @@ async def generate_music(message):
     try:
         prompt = chat_states[user_id]['lyrics']
         is_custom = chat_states[user_id]['mode'] == 'custom'
-
+        title = chat_states[user_id]['title']
         tags = chat_states[user_id].get('tags', None)
 
         # Generate Music
@@ -174,9 +178,11 @@ async def generate_music(message):
             wait_audio=True
         )
 
-        for song in songs:
-            file_path = await asyncio.to_thread(client.download, song=song)
-            await message.channel.send(file=discord.File(file_path, filename="generated_music.mp3"))
+        for idx, song in enumerate(songs, start=1):
+            version = f"v{idx}"
+            filename = f"{title}_{version}.mp3"
+            file_path = await asyncio.to_thread(client.download, song=song, filename=filename)
+            await message.channel.send(file=discord.File(file_path, filename=filename))
             os.remove(file_path)
 
         chat_states.pop(user_id, None)
