@@ -101,4 +101,4 @@ If you have any questions, feedback, or just want to say hi, you can reach out t
 - Me : [Martynka Adamski](https://my.secondlife.com/martynka.adamski)
 - Suno AI Support Group on Telegram : [@Suno_API](https://t.me/Suno_API)
 
-🧑‍💻 Edited by [💖Martynka Adamski💖](https://my.secondlife.com/martynka.adamski) originaly Built with 💖 by [Single Developers </> ](https://t.me/SingleDevelopers)
+🧑‍💻 Redesigned by [💖Martynka Adamski💖](https://my.secondlife.com/martynka.adamski) originaly Built with 💖 for Telegram by [Single Developers </> ](https://t.me/SingleDevelopers)
