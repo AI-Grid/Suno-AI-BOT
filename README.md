@@ -1,77 +1,9 @@
-# 🎵 Suno AI Music Generator Discord Bot
+# 🎵 Suno AI Music Generator in few versions
 
-Welcome to the Suno AI Music Generator Bot! 🤖 This bot leverages the [Suno AI API](https://github.com/Malith-Rukshan/Suno-API) to generate custom music tracks based on user inputs directly within Discord Server/DM with Rank/Password protection.
+Welcome to the Suno AI Music Generator Bot/Php Api! 🤖 This bot leverages the [Suno AI API](https://github.com/Malith-Rukshan/Suno-API) to generate custom music tracks based on user inputs directly within Discord Server/DM with Rank/Password protection.
 
-✍️ Note : This is a **Very Basic Bot Example** demonstrating how to use the [Suno AI API](https://github.com/Malith-Rukshan/Suno-API).
+✍️ Note : This is a **Very Basic Code** using api from [Suno AI API](https://github.com/Malith-Rukshan/Suno-API).
 
-[![PyPI Package](https://img.shields.io/badge/PyPi-Library-1cd760?logo=pypi&style=flat)](https://pypi.org/project/SunoAI/)
-[![Suno-AI Github](https://img.shields.io/badge/Github-Suno--API-blue?logo=github&style=flat)](https://github.com/Malith-Rukshan/Suno-API)
-
-## 🌟 Features
-
-- **🎶 Music Generation**: Generate music by providing custom lyrics or a description.
-- **🖱️ Interactive Commands**: Simple commands to start music generation, and cancel ongoing operations.
-- **👥 Simple Interface**: Easy to use via commands.
-
-## 🚀 Deployment
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/AI-Grid/Suno-AI-BOT-discord/)
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/AI-Grid/Suno-AI-BOT-discord/)
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
-### 🔧 Prerequisites
-
-- A registered Discord Bot Token (obtain one from [Discord Dev Page](https://discord.com/developers/applications/)
-- Access to Suno AI API with a valid cookie - [Tutorial](https://github.com/Malith-Rukshan/Suno-API/tree/main?tab=readme-ov-file#-prerequisites)
-
-### On PasS
-
-Set `SUNO_COOKIE` and `BOT_TOKEN` as Environmental variables. Remember also to add `REQUIRED_ROLE` for your server and `BOT_PASSWORD` for authentication on dm
-so example
-```bash
-BOT_TOKEN=your_discord_bot_token_here
-SUNO_COOKIE=your_suno_cookie_here
-REQUIRED_ROLE=YourRoleName
-BOT_PASSWORD=your_secure_password
- ```
-### Locally
-
-1. **Clone the repository:**
-
-    ```bash
-    mkdir suno-bot && cd suno-bot
-    git clone https://github.com/AI-Grid/Suno-AI-BOT-discord .
-    
-    ```
-
-2. **Install required packages:**
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3. **Set Environment Variables:**
-
-    Set the `BOT_TOKEN` and `SUNO_COOKIE` in your environment variables or directly in the code.
-    change your .env file:
-    ```bash
-   BOT_TOKEN='your_bot_token_here'
-   SUNO_COOKIE='your_suno_cookie_here'
-   REQUIRED_ROLE='YourRoleName'
-   BOT_PASSWORD='your_secure_password'
-    ```
-
-4. **Run the Bot:**
-
-    ```bash
-    python main.py
-    ```
-
-## ⌨️ Commands
-
-Interact with your bot on Telegram using the following commands:
-
-- `!help` - Welcome message and basic bot information.
-- `!generate` - Starts the music generation process.
-- `!stop` - Cancels the current operation and resets the session.
 
 ## 🤝 Contributing
 
@@ -84,7 +16,7 @@ All content and music generated through this bot are credited to [Suno AI](https
 > Based on Suno Telegram Bot by [@MalithRukshan](https://t.me/MalithRukshan)
 
 ## ⚖️ License
-This project is distributed under the MIT License. This license allows everyone to use, modify, and redistribute the code. However, it comes with no warranties regarding its functionality. For more details, see the [LICENSE](https://github.com/Malith-Rukshan/Suno-API/blob/main/LICENSE) file in the repository.
+This project is distributed under the MIT License. This license allows everyone to use, modify, and redistribute the code. However, it comes with no warranties regarding its functionality. For more details, see the [LICENSE](https://github.com/AI-Grid/Suno-AI-BOT/blob/note/LICENSE) file in the repository.
 
 ## 🌟 Support and Community
 If you found this project helpful, **don't forget to give it a ⭐ on GitHub.** This helps others find and use the project too! 🫶
@@ -99,6 +31,6 @@ If you have any questions, feedback, or just want to say hi, you can reach out t
 
   -  🧑‍💻 Original Developer of Suno API package: [@MalithRukshan](https://t.me/MalithRukshan)
   -  🧑‍💻 Suno AI Support Group on Telegram : [@Suno_API](https://t.me/Suno_API)
-  -  🧑‍💻 Redesigned for work in Discord by [💖Marty💖](https://my.secondlife.com/martynka.adamski)
+  -  🧑‍💻 Redesigned by [💖Marty💖](https://my.secondlife.com/martynka.adamski)
 
 Thank you everyone hope you will enjoy💖!
