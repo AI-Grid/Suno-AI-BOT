@@ -15,7 +15,9 @@ Welcome to the Suno AI Music Generator Bot! 🤖 This bot leverages the [Suno AI
 - **👥 Simple Interface**: Easy to use with inline buttons for quick selections.
 
 ## 🚀 Deployment
-
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/AI-Grid/Suno-AI-BOT-discord/)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/AI-Grid/Suno-AI-BOT-discord/)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
 ### 🔧 Prerequisites
 
 - A registered Discord Bot Token (obtain one from [Discord Dev Page](https://discord.com/developers/applications/)
@@ -24,11 +26,13 @@ Welcome to the Suno AI Music Generator Bot! 🤖 This bot leverages the [Suno AI
 ### On PasS
 
 Set `SUNO_COOKIE` and `BOT_TOKEN` as Environmental variables. Remember also to add `REQUIRED_ROLE` for your server and `BOT_PASSWORD` for authentication on dm
-
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/AI-Grid/Suno-AI-BOT-discord/)
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/AI-Grid/Suno-AI-BOT-discord/)
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
-
+so example
+```bash
+BOT_TOKEN=your_discord_bot_token_here
+SUNO_COOKIE=your_suno_cookie_here
+REQUIRED_ROLE=YourRoleName
+BOT_PASSWORD=your_secure_password
+ ```
 ### Locally
 
 1. **Clone the repository:**
