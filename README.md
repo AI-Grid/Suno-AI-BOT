@@ -97,8 +97,8 @@ Join our Telegram channels,
 ## 📬 Contact
 If you have any questions, feedback, or just want to say hi, you can reach out to me:
 
-🧑‍💻 Original Developer of Suno API package: [@MalithRukshan](https://t.me/MalithRukshan)
-🧑‍💻 Suno AI Support Group on Telegram : [@Suno_API](https://t.me/Suno_API)
-🧑‍💻 Redesigned for work in Discord by [💖Marty💖](https://my.secondlife.com/martynka.adamski)
+-🧑‍💻 Original Developer of Suno API package: [@MalithRukshan](https://t.me/MalithRukshan)
+-🧑‍💻 Suno AI Support Group on Telegram : [@Suno_API](https://t.me/Suno_API)
+-🧑‍💻 Redesigned for work in Discord by [💖Marty💖](https://my.secondlife.com/martynka.adamski)
 
 Thank you everyone hope you will enjoy💖!
