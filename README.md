@@ -17,7 +17,7 @@ Branches:
 
 ## Instruction for each branch
 
-[Instruction is here](https://github.com/AI-Grid/Suno-AI-BOT/blob/note/Instruction.md)
+[Instruction is here](https://github.com/AI-Grid/Suno-AI-BOT/wiki)
 
 ## 🤝 Contributing
 
