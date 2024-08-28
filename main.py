@@ -46,9 +46,9 @@ async def is_authorized(ctx):
     
     # If the command is issued in a guild (server), check the role
     if REQUIRED_ROLE:
-        role = discord.utils.get(ctx.guild.roles, name=REQUIRED_ROLE)
-        if role in ctx.author.roles:
-            return await check_password(ctx)
+    roles = [role.strip() for role in REQUIRED_ROLE.split(',')]
+    if any(discord.utils.get(ctx.guild.roles, name=role) in ctx.author.roles for role in roles):
+        return await check_password(ctx)
     
     # Prompt for password in DM if not authorized by role
     return await check_password(ctx)
@@ -119,6 +119,7 @@ async def on_message(message):
     # Always check if !stop command was issued
     if message.content.lower() == "!stop":
         await stop(message)
+        await message.channel.send('Sesja została pomyślnie przerwana. Możesz zacząć od nowa za pomocą !generate.')
         return
 
     if user_id in chat_states:
