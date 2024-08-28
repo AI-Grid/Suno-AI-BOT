@@ -46,10 +46,9 @@ async def is_authorized(ctx):
     
     # If the command is issued in a guild (server), check the role
     if REQUIRED_ROLE:
-    roles = [role.strip() for role in REQUIRED_ROLE.split(',')]
-    if any(discord.utils.get(ctx.guild.roles, name=role) in ctx.author.roles for role in roles):
-        return await check_password(ctx)
-    
+        roles = [role.strip() for role in REQUIRED_ROLE.split(',')]
+        if any(discord.utils.get(ctx.guild.roles, name=role) in ctx.author.roles for role in roles):
+            return await check_password(ctx)
     # Prompt for password in DM if not authorized by role
     return await check_password(ctx)
 
