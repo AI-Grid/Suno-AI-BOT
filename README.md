@@ -27,7 +27,7 @@ Contributions to the Suno AI Music Generator Bot are welcome! Please feel free t
 All content and music generated through this bot are credited to [Suno AI](https://suno.ai/). This Bot by unofficial API provides a convenient way to interact with Suno AI's services but does not claim any ownership or rights over the music generated. Please respect  the terms of service of Suno AI when using their platform ❤️.
 
 > This bot is intended primarily for educational and development purposes. It aims to enhance and simplify access to Suno AI's music generation capabilities. If you enjoy the music generated, consider supporting Suno AI directly.
-> Based on Suno Telegram Bot by [@MalithRukshan](https://t.me/MalithRukshan)
+> Based on Suno Api by [@MalithRukshan](https://t.me/MalithRukshan)
 
 ## ⚖️ License
 This project is distributed under the MIT License. This license allows everyone to use, modify, and redistribute the code. However, it comes with no warranties regarding its functionality. For more details, see the [LICENSE](https://github.com/AI-Grid/Suno-AI-BOT/blob/note/LICENSE) file in the repository.
