@@ -2,7 +2,6 @@ import os
 import logging
 import asyncio
 from dotenv import load_dotenv
-
 import discord
 from discord.ext import commands
 import suno
@@ -20,12 +19,11 @@ client = suno.Suno(cookie=SUNO_COOKIE)
 
 # Store user session data
 chat_states = {}
-password_attempts = {}  # To store successful password attempts for the current session
+password_attempts = {}
 
 # Get bot settings from environment
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 REQUIRED_ROLE = os.getenv("REQUIRED_ROLE")
-BOT_PASSWORD = os.getenv("BOT_PASSWORD")
 
 # Intents and bot initialization
 intents = discord.Intents.all()
@@ -33,9 +31,23 @@ intents.messages = True
 intents.message_content = True 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+# Read users.txt and store user data
+user_data = {}
+with open('users.txt', 'r') as file:
+    for line in file:
+        if ':' in line:
+            username, password, limit = line.strip().split(':')
+            user_data[username] = {'password': password, 'limit': int(limit)}
+
 async def is_authorized(ctx):
-    """Check if the user has the required role or provides the correct password."""
+    """Check if the user is in the users list and has provided the correct password."""
     
+    username = ctx.author.name
+
+    if username not in user_data:
+        await ctx.author.send("---Identification not recognized by system---\n---Connection Terminated---")
+        return False
+
     # Always ask for a password in each session
     if ctx.author.id in password_attempts:
         del password_attempts[ctx.author.id]
@@ -49,20 +61,33 @@ async def is_authorized(ctx):
         roles = [role.strip() for role in REQUIRED_ROLE.split(',')]
         if any(discord.utils.get(ctx.guild.roles, name=role) in ctx.author.roles for role in roles):
             return await check_password(ctx)
-    # Prompt for password in DM if not authorized by role
+
     return await check_password(ctx)
 
 async def check_password(ctx):
-    """Check if the user has provided the correct password."""
-    # Prompt for password in DM
-    await ctx.author.send("🔒 Please provide the bot password to proceed:")
+    """Check if the user has provided the correct password and is within their usage limit."""
+    username = ctx.author.name
+    user_info = user_data.get(username)
+
+    if not user_info:
+        await ctx.author.send("---Identification not recognized by system---\n---Connection Terminated---")
+        return False
+
+    correct_password = user_info['password']
+    usage_limit = user_info['limit']
+
+    if usage_limit == 0:
+        await ctx.author.send("❌ You have reached your usage limit.")
+        return False
+
+    await ctx.author.send("🔒 Please provide your password to proceed:")
 
     def check(m):
         return m.author == ctx.author and isinstance(m.channel, discord.DMChannel)
 
     try:
         response = await bot.wait_for('message', check=check, timeout=60.0)
-        if response.content == BOT_PASSWORD:
+        if response.content == correct_password:
             password_attempts[ctx.author.id] = True
             await ctx.author.send("✅ Password accepted! You can now use the bot.")
             return True
@@ -72,6 +97,17 @@ async def check_password(ctx):
     except asyncio.TimeoutError:
         await ctx.author.send("⏳ Timeout. You did not provide the password in time.")
         return False
+
+# Update usage limit after successful generation
+def update_usage_limit(username):
+    if username in user_data:
+        if user_data[username]['limit'] > 0:
+            user_data[username]['limit'] -= 1
+
+        # Save the updated limit back to the file
+        with open('users.txt', 'w') as file:
+            for user, data in user_data.items():
+                file.write(f"{user}:{data['password']}:{data['limit']}\n")
 
 # Remove discord default help command
 bot.remove_command('help')
@@ -153,6 +189,8 @@ async def on_message(message):
 
 async def generate_music(message):
     user_id = message.author.id
+    username = message.author.name
+
     await message.channel.send("Generating your music... please wait. 🎶")
     try:
         prompt = chat_states[user_id]['lyrics']
@@ -181,6 +219,10 @@ async def generate_music(message):
             
             # Remove the file after sending
             os.remove(new_file_path)
+
+        # Decrement usage limit if not unlimited (-1)
+        if user_data[username]['limit'] != -1:
+            update_usage_limit(username)
 
         chat_states.pop(user_id, None)
         await message.channel.send("Thank you for using the bot! 🎧")
