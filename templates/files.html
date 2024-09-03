@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Management</title>
+</head>
+<body>
+    <h1>Files in Downloads Directory</h1>
+    <table border="1">
+        <tr>
+            <th>Filename</th>
+            <th>Size (bytes)</th>
+            <th>Last Modified</th>
+            <th>Action</th>
+        </tr>
+        {% for file in files %}
+        <tr>
+            <td>{{ file.name }}</td>
+            <td>{{ file.size }}</td>
+            <td>{{ file.mtime }}</td>
+            <td><a href="{{ url_for('download_file', filename=file.name) }}">Download</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Clear Old Files</h2>
+    <form action="{{ url_for('clear_files') }}" method="post">
+        <label for="days">Remove files older than:</label>
+        <input type="number" id="days" name="days" value="1"> days
+        <br>
+        <input type="submit" value="Clear Files">
+    </form>
+
+    <p><a href="{{ url_for('index') }}">Back to Users Management</a></p>
+</body>
+</html>
