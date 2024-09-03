@@ -32,6 +32,20 @@ intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Read users.txt and store user data
+def load_authorized_users():
+    """Load authorized user IDs from owners.txt."""
+    authorized_users = set()
+    try:
+        with open('owners.txt', 'r') as file:
+            for line in file:
+                user_id = line.strip()
+                if user_id.isdigit():  # Ensure the line is a valid number
+                    authorized_users.add(user_id)
+    except FileNotFoundError:
+        print("owners.txt file not found.")
+    return authorized_users
+
+authorized_users = load_authorized_users()
 def load_user_data():
     """Load user data from users.txt."""
     global user_data
@@ -153,9 +167,10 @@ async def stop(ctx):
 async def reload_users(ctx):
     """Reload the user data from users.txt without restarting the bot and display the current limits."""
     
-    # You can add custom checks here to restrict who can use this command
-    # For example, restrict to specific user IDs
-    authorized_users = ['388374668450463745', '706509406077976617']  # Replace with actual Discord user IDs
+    # Load the authorized users dynamically
+    global authorized_users
+    authorized_users = load_authorized_users()
+
     if str(ctx.author.id) not in authorized_users:
         await ctx.send("⛔ You do not have permission to use this command.")
         return
@@ -177,6 +192,7 @@ async def reload_users(ctx):
 
     # Send the response message to the channel
     await ctx.send(response_message)
+
 
 # Message handler for mode selection and input collection
 @bot.event
