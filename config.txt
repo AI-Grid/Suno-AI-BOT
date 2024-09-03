@@ -1,3 +1,4 @@
 [FLASK]
 port=5000
 secret_key=your_very_secret_key
+admin_secret_key=your_even_more_secret_key
