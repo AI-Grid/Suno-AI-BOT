@@ -1,7 +1,7 @@
 import os
 import time
 import configparser
-from flask import Flask, request, redirect, url_for, render_template, flash, send_file
+from flask import Flask, request, redirect, url_for, render_template, flash, send_file, session
 from threading import Thread
 import discord
 from discord.ext import commands
@@ -22,6 +22,7 @@ config.read('config.txt')
 # Apply configurations from config.txt
 flask_port = int(config['FLASK']['port'])
 app.secret_key = config['FLASK']['secret_key']
+admin_secret_key = config['FLASK']['admin_secret_key']  # Add this in config.txt
 
 # Directory for generated files
 DOWNLOADS_DIR = 'downloads'
@@ -68,16 +69,17 @@ def clear_old_files(directory, days=1):
 # Route to show list of files in the download directory
 @app.route('/files')
 def files():
+    if 'authenticated' not in session:
+        return redirect(url_for('login'))
+
     file_list = list_files(DOWNLOADS_DIR)
     return render_template('files.html', files=file_list)
 
 # Route to clear old files in the download directory
 @app.route('/clear_files', methods=['POST'])
 def clear_files():
-    username = request.form.get('username')
-    if not is_authorized(username):
-        flash('Unauthorized user')
-        return redirect(url_for('files'))
+    if 'authenticated' not in session:
+        return redirect(url_for('login'))
 
     days = int(request.form.get('days', 1))
     removed_files = clear_old_files(DOWNLOADS_DIR, days)
@@ -87,6 +89,9 @@ def clear_files():
 # Route to download a specific file
 @app.route('/download/<filename>')
 def download_file(filename):
+    if 'authenticated' not in session:
+        return redirect(url_for('login'))
+
     file_path = os.path.join(DOWNLOADS_DIR, filename)
     if os.path.exists(file_path):
         return send_file(file_path, as_attachment=True)
@@ -97,12 +102,10 @@ def download_file(filename):
 # Route to view and edit users.txt
 @app.route('/users', methods=['GET', 'POST'])
 def manage_users():
+    if 'authenticated' not in session:
+        return redirect(url_for('login'))
+
     if request.method == 'POST':
-        username = request.form.get('username')
-        if not is_authorized(username):
-            flash('Unauthorized user')
-            return redirect(url_for('manage_users'))
-        
         action = request.form.get('action')
         user_data = request.form.get('user_data')
 
@@ -124,11 +127,24 @@ def manage_users():
 
     return render_template('users.html', users=users)
 
-# Helper function to check if the user is authorized
-def is_authorized(username):
-    with open(USERS_FILE, 'r') as f:
-        users = [line.split(":")[0].strip() for line in f.readlines()]
-    return username in users
+# Login route to authenticate with the admin secret key
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        entered_key = request.form.get('secret_key')
+        if entered_key == admin_secret_key:
+            session['authenticated'] = True
+            return redirect(url_for('files'))
+        else:
+            flash('Invalid secret key')
+
+    return render_template('login.html')
+
+# Logout route to clear the session
+@app.route('/logout')
+def logout():
+    session.pop('authenticated', None)
+    return redirect(url_for('login'))
 
 # Discord command to reload users.txt
 @bot.command(name='reload_users')
@@ -241,13 +257,8 @@ async def generate_music(message):
 
 # Run Flask app in a separate thread
 def run_flask():
-    app.run(host='0.0.0.0',port=flask_port)
+    app.run(host='0.0.0.0', port=flask_port)
 
-# Start both Flask and Discord bot
 if __name__ == "__main__":
-    # Start Flask in a separate thread
-    flask_thread = Thread(target=run_flask)
-    flask_thread.start()
-
-    # Run the Discord bot
+    Thread(target=run_flask).start()
     bot.run(os.getenv("BOT_TOKEN"))
