@@ -1,0 +1,3 @@
+[FLASK]
+port=5000
+secret_key=your_very_secret_key
