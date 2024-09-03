@@ -5,6 +5,7 @@ Aded option to add password and limit per user
 user1:password123:5
 user2:secretpassword:-1
 -1 means unlimited
+Added User admin panel with port config
 ```
 ## 🎵 Suno AI Music Generator Discord Bot
 Welcome to the Suno AI Music Generator Bot! 🤖 This bot leverages the [Suno AI API](https://github.com/Malith-Rukshan/Suno-API) to generate custom music tracks based on user inputs directly within Discord Server/DM with Rank/Password protection.
