@@ -150,9 +150,16 @@ async def stop(ctx):
         await ctx.send('No active session to stop. 🚫')
         
 @bot.command(name='reload_users')
-@commands.has_role(REQUIRED_ROLE)  # Optional: restrict to a specific role
 async def reload_users(ctx):
     """Reload the user data from users.txt without restarting the bot and display the current limits."""
+    
+    # You can add custom checks here to restrict who can use this command
+    # For example, restrict to specific user IDs
+    authorized_users = ['388374668450463745', '706509406077976617']  # Replace with actual Discord user IDs
+    if str(ctx.author.id) not in authorized_users:
+        await ctx.send("⛔ You do not have permission to use this command.")
+        return
+
     global user_data
     user_data = {}
     response_message = "🔄 User data has been reloaded. Here are the current limits:\n"
@@ -168,8 +175,9 @@ async def reload_users(ctx):
                 limit_display = "Unlimited" if int(limit) == -1 else f"{limit} remaining"
                 response_message += f"**{username}**: {limit_display}\n"
 
-    # Send the response message to the Discord channel
+    # Send the response message to the channel
     await ctx.send(response_message)
+
 # Message handler for mode selection and input collection
 @bot.event
 async def on_message(message):
