@@ -1,7 +1,7 @@
 
 ## UPDATE
 ```
-Aded option to add upassword and limit per user
+Aded option to add password and limit per user
 user1:password123:5
 user2:secretpassword:-1
 -1 means unlimited
