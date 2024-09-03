@@ -241,7 +241,7 @@ async def generate_music(message):
 
 # Run Flask app in a separate thread
 def run_flask():
-    app.run(port=flask_port)
+    app.run(host='0.0.0.0',port=flask_port)
 
 # Start both Flask and Discord bot
 if __name__ == "__main__":
