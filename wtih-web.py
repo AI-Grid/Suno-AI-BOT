@@ -1,156 +1,243 @@
 import os
-import asyncio
-from flask import Flask, request, redirect, url_for, render_template, flash
+import time
+import configparser
+from flask import Flask, request, redirect, url_for, render_template, flash, send_file
+from threading import Thread
 import discord
 from discord.ext import commands
-from threading import Thread
-import configparser
+from dotenv import load_dotenv
+import asyncio
+import suno
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Flask app setup
+app = Flask(__name__)
 
 # Load configuration from config.txt
 config = configparser.ConfigParser()
 config.read('config.txt')
 
-# Flask app setup
-app = Flask(__name__)
-
 # Apply configurations from config.txt
 flask_port = int(config['FLASK']['port'])
 app.secret_key = config['FLASK']['secret_key']
 
-# File paths
+# Directory for generated files
+DOWNLOADS_DIR = 'downloads'
 USERS_FILE = 'users.txt'
 
-# Discord bot setup
+# Intents and bot initialization
 intents = discord.Intents.all()
-intents.messages = True
-intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-# Load authorized users
-def load_authorized_users():
-    authorized_users = set()
-    try:
-        with open('owners.txt', 'r') as file:
-            for line in file:
-                user_id = line.strip()
-                if user_id.isdigit():
-                    authorized_users.add(user_id)
-    except FileNotFoundError:
-        print("owners.txt file not found.")
-    return authorized_users
+# Initialize Suno AI Library
+SUNO_COOKIE = os.getenv("SUNO_COOKIE")
+client = suno.Suno(cookie=SUNO_COOKIE)
 
-authorized_users = load_authorized_users()
+# Store user session data
+chat_states = {}
+password_attempts = {}
 
-# Load users from file
-def load_users():
-    users = []
-    if os.path.exists(USERS_FILE):
-        with open(USERS_FILE, 'r') as file:
-            for line in file:
-                if ':' in line:
-                    username, password, limit = line.strip().split(':')
-                    limit_display = "Unlimited" if int(limit) == -1 else f"{limit} remaining"
-                    users.append({'username': username, 'password': password, 'limit': limit_display})
-    return users
+# Helper function to get list of files in the download directory
+def list_files(directory):
+    files = []
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+        if os.path.isfile(file_path):
+            files.append({
+                'name': filename,
+                'size': os.path.getsize(file_path),
+                'mtime': time.ctime(os.path.getmtime(file_path))
+            })
+    return files
 
-# Flask routes
-@app.route('/')
-def index():
-    return render_template('index.html', users=load_users())
+# Helper function to clear old files in the download directory
+def clear_old_files(directory, days=1):
+    current_time = time.time()
+    removed_files = []
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+        if os.path.isfile(file_path):
+            file_age = current_time - os.path.getmtime(file_path)
+            if file_age > days * 86400:  # Days to seconds
+                os.remove(file_path)
+                removed_files.append(filename)
+    return removed_files
 
-@app.route('/add', methods=['POST'])
-def add_user():
-    if not is_authorized(request.form.get('username')):
+# Route to show list of files in the download directory
+@app.route('/files')
+def files():
+    file_list = list_files(DOWNLOADS_DIR)
+    return render_template('files.html', files=file_list)
+
+# Route to clear old files in the download directory
+@app.route('/clear_files', methods=['POST'])
+def clear_files():
+    username = request.form.get('username')
+    if not is_authorized(username):
         flash('Unauthorized user')
-        return redirect(url_for('index'))
+        return redirect(url_for('files'))
 
-    username = request.form['username']
-    password = request.form['password']
-    limit = request.form['limit']
+    days = int(request.form.get('days', 1))
+    removed_files = clear_old_files(DOWNLOADS_DIR, days)
+    flash(f'Removed {len(removed_files)} files older than {days} days.')
+    return redirect(url_for('files'))
 
-    with open(USERS_FILE, 'a') as file:
-        file.write(f"{username}:{password}:{limit}\n")
-
-    flash(f'Added user {username}')
-    return redirect(url_for('index'))
-
-@app.route('/remove', methods=['POST'])
-def remove_user():
-    if not is_authorized(request.form.get('username')):
-        flash('Unauthorized user')
-        return redirect(url_for('index'))
-
-    username_to_remove = request.form['username']
-
-    with open(USERS_FILE, 'r') as file:
-        lines = file.readlines()
-
-    with open(USERS_FILE, 'w') as file:
-        for line in lines:
-            if not line.startswith(f"{username_to_remove}:"):
-                file.write(line)
-
-    flash(f'Removed user {username_to_remove}')
-    return redirect(url_for('index'))
-
-@app.route('/update', methods=['POST'])
-def update_user():
-    if not is_authorized(request.form.get('username')):
-        flash('Unauthorized user')
-        return redirect(url_for('index'))
-
-    username = request.form['username']
-    new_limit = request.form['limit']
-
-    with open(USERS_FILE, 'r') as file:
-        lines = file.readlines()
-
-    with open(USERS_FILE, 'w') as file:
-        user_found = False
-        for line in lines:
-            if line.startswith(f"{username}:"):
-                user_found = True
-                username, password, _ = line.strip().split(':')
-                file.write(f"{username}:{password}:{new_limit}\n")
-            else:
-                file.write(line)
-
-    if user_found:
-        flash(f'Updated limit for user {username}')
+# Route to download a specific file
+@app.route('/download/<filename>')
+def download_file(filename):
+    file_path = os.path.join(DOWNLOADS_DIR, filename)
+    if os.path.exists(file_path):
+        return send_file(file_path, as_attachment=True)
     else:
-        flash(f'User {username} not found')
+        flash('File not found.')
+        return redirect(url_for('files'))
 
-    return redirect(url_for('index'))
+# Route to view and edit users.txt
+@app.route('/users', methods=['GET', 'POST'])
+def manage_users():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        if not is_authorized(username):
+            flash('Unauthorized user')
+            return redirect(url_for('manage_users'))
+        
+        action = request.form.get('action')
+        user_data = request.form.get('user_data')
 
-# Authorization check function for Flask
+        if action == 'add':
+            with open(USERS_FILE, 'a') as f:
+                f.write(f"\n{user_data}")
+            flash('User added successfully.')
+        elif action == 'delete':
+            with open(USERS_FILE, 'r') as f:
+                users = f.readlines()
+            with open(USERS_FILE, 'w') as f:
+                for line in users:
+                    if user_data not in line:
+                        f.write(line)
+            flash('User deleted successfully.')
+
+    with open(USERS_FILE, 'r') as f:
+        users = f.readlines()
+
+    return render_template('users.html', users=users)
+
+# Helper function to check if the user is authorized
 def is_authorized(username):
-    return username in authorized_users
+    with open(USERS_FILE, 'r') as f:
+        users = [line.split(":")[0].strip() for line in f.readlines()]
+    return username in users
 
-# Discord bot commands
+# Discord command to reload users.txt
 @bot.command(name='reload_users')
 async def reload_users(ctx):
-    """Reload the user data from users.txt without restarting the bot and display the current limits."""
-    global authorized_users
-    authorized_users = load_authorized_users()
+    if is_authorized(str(ctx.author)):
+        with open(USERS_FILE, 'r') as f:
+            users = f.readlines()
+        await ctx.send(f"Users reloaded:\n" + ''.join(users))
+    else:
+        await ctx.send("You are not authorized to perform this action.")
 
-    if str(ctx.author.id) not in authorized_users:
-        await ctx.send("⛔ You do not have permission to use this command.")
+# Command to start music generation
+@bot.command(name='generate')
+async def generate(ctx):
+    if not await is_authorized(str(ctx.author)):
         return
 
-    global user_data
-    user_data = {}
-    response_message = "🔄 User data has been reloaded. Here are the current limits:\n"
+    await ctx.send('Select mode: custom or not. 🤔\nType "custom" or "default".')
+    chat_states[ctx.author.id] = {}
 
-    with open(USERS_FILE, 'r') as file:
-        for line in file:
-            if ':' in line:
-                username, password, limit = line.strip().split(':')
-                user_data[username] = {'password': password, 'limit': int(limit)}
-                
-                limit_display = "Unlimited" if int(limit) == -1 else f"{limit} remaining"
-                response_message += f"**{username}**: {limit_display}\n"
+# Command to stop and clear state
+@bot.command(name='stop')
+async def stop(ctx):
+    user_id = ctx.author.id
+    if user_id in chat_states:
+        del chat_states[user_id]  # Clear the user's state
+        await ctx.send('Generation stopped. 🚫 You can start again with !generate.')
+    else:
+        await ctx.send('No active session to stop. 🚫')
 
-    await ctx.send(response_message)
+# Message handler for mode selection and input collection
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    user_id = message.author.id
+    
+    if message.content.lower() == "!stop":
+        await stop(message)
+        await message.channel.send('Session successfully terminated. You can start again with !generate.')
+        return
+
+    if user_id in chat_states:
+        if 'mode' not in chat_states[user_id]:
+            if message.content.lower() == "custom":
+                chat_states[user_id]['mode'] = 'custom'
+                await message.channel.send("🎤 Send lyrics first.")
+            elif message.content.lower() == "default":
+                chat_states[user_id]['mode'] = 'default'
+                await message.channel.send("🎤 Send song description.")
+            return
+
+        if 'lyrics' not in chat_states[user_id]:
+            chat_states[user_id]['lyrics'] = message.content
+            await message.channel.send("🎼 Please provide a title for your song.")
+            return
+
+        if 'title' not in chat_states[user_id]:
+            chat_states[user_id]['title'] = message.content
+            if chat_states[user_id]['mode'] == 'custom':
+                chat_states[user_id]['tags'] = "Wait-for-tags"
+                await message.channel.send("🎹 Now send tags.\n\nExample: Classical")
+            else:
+                await generate_music(message)
+            return
+
+        if chat_states[user_id]['mode'] == 'custom' and chat_states[user_id]['tags'] == "Wait-for-tags":
+            chat_states[user_id]['tags'] = message.content
+            await generate_music(message)
+
+    await bot.process_commands(message)
+
+async def generate_music(message):
+    user_id = message.author.id
+    await message.channel.send("Generating your music... please wait. 🎶")
+    try:
+        prompt = chat_states[user_id]['lyrics']
+        is_custom = chat_states[user_id]['mode'] == 'custom'
+        tags = chat_states[user_id].get('tags', None)
+        title = chat_states[user_id].get('title', 'generated_music')  # Default title if not provided
+
+        # Generate Music
+        songs = await asyncio.to_thread(
+            client.generate,
+            prompt=prompt,
+            tags=tags if is_custom else None,
+            is_custom=is_custom,
+            wait_audio=True
+        )
+
+        for index, song in enumerate(songs):
+            file_path = await asyncio.to_thread(client.download, song=song)
+            
+            # Construct the new file name using the title and index
+            new_file_path = os.path.join(DOWNLOADS_DIR, f"{title}_v{index + 1}.mp3")
+            os.rename(file_path, new_file_path)
+            
+            # Upload the file to Discord
+            await message.channel.send(file=discord.File(new_file_path, filename=new_file_path))
+            
+            # Remove the file after sending
+            os.remove(new_file_path)
+
+        chat_states.pop(user_id, None)
+        await message.channel.send("Thank you for using the bot! 🎧")
+    except Exception as e:
+        await message.channel.send(f"❗ Failed to generate music: {e}")
+        chat_states.pop(user_id, None)
 
 # Run Flask app in a separate thread
 def run_flask():
@@ -163,4 +250,4 @@ if __name__ == "__main__":
     flask_thread.start()
 
     # Run the Discord bot
-    bot.run('YOUR_DISCORD_BOT_TOKEN')
+    bot.run(os.getenv("BOT_TOKEN"))
