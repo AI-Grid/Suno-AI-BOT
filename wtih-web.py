@@ -4,10 +4,18 @@ from flask import Flask, request, redirect, url_for, render_template, flash
 import discord
 from discord.ext import commands
 from threading import Thread
+import configparser
+
+# Load configuration from config.txt
+config = configparser.ConfigParser()
+config.read('config.txt')
 
 # Flask app setup
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Change this to a random secret key
+
+# Apply configurations from config.txt
+flask_port = int(config['FLASK']['port'])
+app.secret_key = config['FLASK']['secret_key']
 
 # File paths
 USERS_FILE = 'users.txt'
@@ -146,7 +154,7 @@ async def reload_users(ctx):
 
 # Run Flask app in a separate thread
 def run_flask():
-    app.run(port=5000)
+    app.run(port=flask_port)
 
 # Start both Flask and Discord bot
 if __name__ == "__main__":
