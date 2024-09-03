@@ -14,3 +14,4 @@ downloads/
 # Python venv
 .venv
 .env
+users.txt
