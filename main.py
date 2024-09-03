@@ -32,16 +32,22 @@ intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Read users.txt and store user data
-user_data = {}
-with open('users.txt', 'r') as file:
-    for line in file:
-        if ':' in line:
-            username, password, limit = line.strip().split(':')
-            user_data[username] = {'password': password, 'limit': int(limit)}
+def load_user_data():
+    """Load user data from users.txt."""
+    global user_data
+    user_data = {}
+    with open('users.txt', 'r') as file:
+        for line in file:
+            if ':' in line:
+                username, password, limit = line.strip().split(':')
+                user_data[username] = {'password': password, 'limit': int(limit)}
 
 async def is_authorized(ctx):
     """Check if the user is in the users list and has provided the correct password."""
     
+    # Reload user data before each authorization check
+    load_user_data()
+
     username = ctx.author.name
 
     if username not in user_data:
@@ -104,7 +110,7 @@ def update_usage_limit(username):
         if user_data[username]['limit'] > 0:
             user_data[username]['limit'] -= 1
 
-        # Save the updated limit back to the file
+        # Update the `users.txt` file with the new limit
         with open('users.txt', 'w') as file:
             for user, data in user_data.items():
                 file.write(f"{user}:{data['password']}:{data['limit']}\n")
@@ -142,7 +148,28 @@ async def stop(ctx):
         await ctx.send('Generation stopped. 🚫 You can start again with !generate.')
     else:
         await ctx.send('No active session to stop. 🚫')
+        
+@bot.command(name='reload_users')
+@commands.has_role(REQUIRED_ROLE)  # Optional: restrict to a specific role
+async def reload_users(ctx):
+    """Reload the user data from users.txt without restarting the bot and display the current limits."""
+    global user_data
+    user_data = {}
+    response_message = "🔄 User data has been reloaded. Here are the current limits:\n"
 
+    # Load the user data from users.txt
+    with open('users.txt', 'r') as file:
+        for line in file:
+            if ':' in line:
+                username, password, limit = line.strip().split(':')
+                user_data[username] = {'password': password, 'limit': int(limit)}
+                
+                # Append each user's name and limit to the response message
+                limit_display = "Unlimited" if int(limit) == -1 else f"{limit} remaining"
+                response_message += f"**{username}**: {limit_display}\n"
+
+    # Send the response message to the Discord channel
+    await ctx.send(response_message)
 # Message handler for mode selection and input collection
 @bot.event
 async def on_message(message):
