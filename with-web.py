@@ -247,7 +247,7 @@ async def generate_music(message):
             await message.channel.send(file=discord.File(new_file_path, filename=new_file_path))
             
             # Remove the file after sending
-            os.remove(new_file_path)
+           # os.remove(new_file_path)
 
         chat_states.pop(user_id, None)
         await message.channel.send("Thank you for using the bot! 🎧")
