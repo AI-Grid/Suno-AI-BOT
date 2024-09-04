@@ -192,7 +192,8 @@ async def reload_users(ctx):
 
 @bot.command(name='generate')
 async def generate(ctx):
-    if not await is_authorized(str(ctx.author)):
+    if not is_authorized(str(ctx.author)):  # Remove 'await'
+        await ctx.send('You are not authorized to perform this action.')
         return
 
     await ctx.send('Select mode: custom or not. 🤔\nType "custom" or "default".')
