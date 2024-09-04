@@ -2,9 +2,6 @@
 
 body {
     font-family: 'Tahoma', sans-serif;
-    background-image: url('{{ url_for('static', filename='background.jpg') }}'); /* Path to your image */
-    background-size: cover; /* Ensure the image covers the entire page */
-    background-repeat: no-repeat; /* Prevent the image from repeating */
     background-attachment: fixed; /* Keep the image fixed during scroll */
     color: #fff;
     margin: 0;
