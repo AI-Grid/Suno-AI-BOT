@@ -203,9 +203,9 @@ async def on_message(message):
     user_id = message.author.id
     
     # Always check if !stop command was issued
-    if message.content.lower() == "!stop":
+     if message.content.lower() == "!stop":
         await stop(message)
-        await message.channel.send('Sesja została pomyślnie przerwana. Możesz zacząć od nowa za pomocą !generate.')
+        await message.channel.send('Session successfully terminated. You can start again with !generate.')
         return
 
     if user_id in chat_states:
