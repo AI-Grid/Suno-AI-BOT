@@ -6,7 +6,7 @@ body {
     background-size: cover; /* Ensure the image covers the entire page */
     background-repeat: no-repeat; /* Prevent the image from repeating */
     background-attachment: fixed; /* Keep the image fixed during scroll */
-    color: #000000;
+    color: #fff;
     margin: 0;
     padding: 0;
     display: flex;
