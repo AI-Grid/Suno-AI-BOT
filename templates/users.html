@@ -31,6 +31,16 @@
         <input type="submit" value="Delete User">
     </form>
 
+    <h2>Edit User Limit</h2>
+    <form method="POST">
+        <input type="hidden" name="action" value="edit">
+        <label for="edit_user">Enter username:password to edit limit:</label><br>
+        <input type="text" id="edit_user" name="edit_user"><br><br>
+        <label for="new_limit">New Limit:</label><br>
+        <input type="number" id="new_limit" name="new_limit" min="-1" step="1"><br><br>
+        <input type="submit" value="Update Limit">
+    </form>
+
     <a href="{{ url_for('files') }}">Back to Files</a>
     <a href="{{ url_for('logout') }}">Logout</a>
 
