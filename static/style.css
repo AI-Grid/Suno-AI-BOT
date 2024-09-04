@@ -1,0 +1,105 @@
+/* Basic styling for the admin panel with a Windows XP look */
+
+body {
+    font-family: 'Tahoma', sans-serif;
+    background-color: #C0C0C0; /* Windows XP background color */
+    color: #000000;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 500px;
+    padding: 20px;
+    background: #FFFFFF; /* White background for the main content */
+    border: 2px solid #000080; /* Windows XP border color */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    background: #000080; /* Title bar background color */
+    color: #FFFFFF;
+    padding: 10px;
+    border-radius: 5px 5px 0 0;
+}
+
+header img {
+    height: 32px;
+    margin-right: 10px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 16px;
+}
+
+form {
+    margin: 20px 0;
+}
+
+label {
+    font-weight: bold;
+}
+
+input[type="text"], input[type="password"], input[type="number"] {
+    padding: 5px;
+    margin-top: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input[type="submit"] {
+    padding: 10px;
+    background-color: #000080; /* Button background color */
+    color: #FFFFFF;
+    border: 1px solid #000000;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+input[type="submit"]:hover {
+    background-color: #0000FF; /* Button hover color */
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+a {
+    color: #000080;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+footer {
+    background: #C0C0C0; /* Footer background color */
+    color: #000000;
+    padding: 10px;
+    text-align: center;
+    font-size: 12px;
+    border-top: 1px solid #000080;
+    margin-top: 20px;
+}
+
+.flash-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
