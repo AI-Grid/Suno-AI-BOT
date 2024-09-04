@@ -65,6 +65,10 @@ def clear_old_files(directory, days=1):
                 os.remove(file_path)
                 removed_files.append(filename)
     return removed_files
+#define of index.html
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 # Route to show list of files in the download directory
 @app.route('/files')
