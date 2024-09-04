@@ -1,11 +1,14 @@
 /* Basic styling for the admin panel with a Windows XP look */
-
+html, body {
+    height: 100%; /* Ensure the html and body elements take up full height */
+    margin: 0;
+}
 body {
+    display: flex;
+    flex-direction: column;
     font-family: 'Tahoma', sans-serif;
     background-attachment: fixed; /* Keep the image fixed during scroll */
     color: #fff;
-    margin: 0;
-    padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -93,6 +96,8 @@ footer {
     font-size: 12px;
     border-top: 1px solid #000080;
     margin-top: 20px;
+    position: relative;
+    width: 100%;
 }
 
 .flash-message {
