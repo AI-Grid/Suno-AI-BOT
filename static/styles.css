@@ -10,6 +10,9 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    background-image: url('{{ url_for('static', filename='background.jpg') }}');
+    background-size: cover; /* Ensures the image covers the container */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
 }
 
 .container {
