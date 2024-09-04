@@ -6,6 +6,7 @@ user1:password123:5
 user2:secretpassword:-1
 -1 means unlimited
 Added User admin panel with port config
+
 ```
 ## 🎵 Suno AI Music Generator Discord Bot
 Welcome to the Suno AI Music Generator Bot! 🤖 This bot leverages the [Suno AI API](https://github.com/Malith-Rukshan/Suno-API) to generate custom music tracks based on user inputs directly within Discord Server/DM with Rank/Password protection.
@@ -32,13 +33,15 @@ Welcome to the Suno AI Music Generator Bot! 🤖 This bot leverages the [Suno AI
 
 ### On PasS
 
-Set `SUNO_COOKIE` and `BOT_TOKEN` as Environmental variables. Remember also to add `REQUIRED_ROLE` for your server and `BOT_PASSWORD` for authentication on dm
+Set `SUNO_COOKIE` and `BOT_TOKEN` as Environmental variables. Remember also to add `REQUIRED_ROLE` for your server and `BOT_PASSWORD`, also SECRET_KEY and ADMIN_SECRET_KEY.
 so example
 ```bash
 BOT_TOKEN=your_discord_bot_token_here
 SUNO_COOKIE=your_suno_cookie_here
 REQUIRED_ROLE=YourRoleName
 BOT_PASSWORD=your_secure_password
+SECRET_KEY=your_secure_password
+ADMIN_SECRET_KEY=your_secure_password
  ```
 ### Locally
 
