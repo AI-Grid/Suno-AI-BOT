@@ -6,7 +6,7 @@
     <title>File Management</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
+<body style="background-image: url('{{ url_for('static', filename='background.jpg') }}');background-size: cover;background-repeat: no-repeat;">
     <div class="container">
         <header>
             <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
@@ -30,7 +30,7 @@
         <a href="{{ url_for('logout') }}">Logout</a>
     </div>
     <footer>
-        &copy; 2024 AI Grid, Marty
+       <br> &copy; 2024 AI Grid, Marty
     </footer>
 </body>
 </html>
