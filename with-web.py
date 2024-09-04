@@ -207,7 +207,6 @@ async def stop(ctx):
         await ctx.send('Generation stopped. 🚫 You can start again with !generate.')
     else:
         await ctx.send('No active session to stop. 🚫')
-
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
@@ -288,8 +287,67 @@ async def generate_music(message):
         chat_states.pop(user_id, None)
 
 # Flask authentication helper
-def is_authorized(username):
-    return username in AUTHORIZED_USERS
+async def is_authorized(ctx):
+    """Check if the user is in the users list and has provided the correct password."""
+    
+    # Reload user data before each authorization check
+    load_user_data()
+
+    username = ctx.author.name
+
+    if username not in user_data:
+        await ctx.author.send("---Identification not recognized by system---\n---Connection Terminated---")
+        return False
+
+    # Always ask for a password in each session
+    if ctx.author.id in password_attempts:
+        del password_attempts[ctx.author.id]
+
+    # If the command is issued in a DM, skip the role check and go straight to password protection
+    if isinstance(ctx.channel, discord.DMChannel):
+        return await check_password(ctx)
+    
+    # If the command is issued in a guild (server), check the role
+    if REQUIRED_ROLE:
+        roles = [role.strip() for role in REQUIRED_ROLE.split(',')]
+        if any(discord.utils.get(ctx.guild.roles, name=role) in ctx.author.roles for role in roles):
+            return await check_password(ctx)
+
+    return await check_password(ctx)
+async def check_password(ctx):
+    """Check if the user has provided the correct password and is within their usage limit."""
+    username = ctx.author.name
+    user_info = user_data.get(username)
+
+    if not user_info:
+        await ctx.author.send("---Identification not recognized by system---\n---Connection Terminated---")
+        return False
+
+    correct_password = user_info['password']
+    usage_limit = user_info['limit']
+
+    if usage_limit == 0:
+        await ctx.author.send("❌ You have reached your usage limit.")
+        return False
+
+    await ctx.author.send("🔒 Please provide your password to proceed:")
+
+    def check(m):
+        return m.author == ctx.author and isinstance(m.channel, discord.DMChannel)
+
+    try:
+        response = await bot.wait_for('message', check=check, timeout=60.0)
+        if response.content == correct_password:
+            password_attempts[ctx.author.id] = True
+            await ctx.author.send("✅ Password accepted! You can now use the bot.")
+            return True
+        else:
+            await ctx.author.send("❌ Incorrect password.")
+            return False
+    except asyncio.TimeoutError:
+        await ctx.author.send("⏳ Timeout. You did not provide the password in time.")
+        return False
+
 
 # Run Flask app in a separate thread
 def run_flask():
