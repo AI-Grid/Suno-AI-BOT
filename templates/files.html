@@ -4,36 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Files in Download Directory</h1>
-
-    <ul>
-    {% for file in files %}
-        <li>
-            <a href="{{ url_for('download_file', filename=file.name) }}">{{ file.name }}</a> 
-            ({{ file.size }} bytes, last modified: {{ file.mtime }})
-        </li>
-    {% endfor %}
-    </ul>
-
-    <h2>Clear Old Files</h2>
-    <form method="POST" action="{{ url_for('clear_files') }}">
-        <label for="days">Remove files older than:</label><br>
-        <input type="number" id="days" name="days" value="1"><br><br>
-        <input type="submit" value="Clear Files">
-    </form>
-
-    <a href="{{ url_for('logout') }}">Logout</a>
-
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+    <div class="container">
+        <header>
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+            <h1>File Management</h1>
+        </header>
+        <h2>Files in Download Directory</h2>
+        <ul>
+        {% for file in files %}
+            <li>
+                <a href="{{ url_for('download_file', filename=file.name) }}">{{ file.name }}</a>
+                ({{ file.size }} bytes, last modified: {{ file.mtime }})
+            </li>
+        {% endfor %}
+        </ul>
+        <h2>Clear Old Files</h2>
+        <form method="POST" action="{{ url_for('clear_files') }}">
+            <label for="days">Remove files older than:</label><br>
+            <input type="number" id="days" name="days" value="1"><br><br>
+            <input type="submit" value="Clear Files">
+        </form>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    <footer>
+        &copy; 2024 AI Grid, Marty
+    </footer>
 </body>
 </html>
