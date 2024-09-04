@@ -203,25 +203,6 @@ def manage_users():
 
     return render_template('users.html', users=users)
 
-# Login route to authenticate with the admin secret key
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        entered_key = request.form.get('secret_key')
-        if entered_key == admin_secret_key:
-            session['authenticated'] = True
-            return redirect(url_for('files'))
-        else:
-            flash('Invalid secret key')
-
-    return render_template('login.html')
-
-# Logout route to clear the session
-@app.route('/logout')
-def logout():
-    session.pop('authenticated', None)
-    return redirect(url_for('login'))
-
 # Discord command to reload users.txt
 @bot.command(name='reload_users')
 async def reload_users(ctx):
