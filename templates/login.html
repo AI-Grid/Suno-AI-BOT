@@ -4,23 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Admin Login</h1>
-    <form method="POST">
-        <label for="secret_key">Secret Key:</label><br>
-        <input type="password" id="secret_key" name="secret_key"><br><br>
-        <input type="submit" value="Login">
-    </form>
-
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+    <div class="container">
+        <header>
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+            <h1>Admin Login</h1>
+        </header>
+        <form method="POST">
+            <label for="secret_key">Secret Key:</label><br>
+            <input type="password" id="secret_key" name="secret_key"><br><br>
+            <input type="submit" value="Login">
+        </form>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                {% for message in messages %}
+                    <li class="flash-message">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
+    <footer>
+        &copy; 2024 AI-Grid, Marty
+    </footer>
 </body>
 </html>
