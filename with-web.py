@@ -312,5 +312,5 @@ flask_thread = Thread(target=run_flask)
 flask_thread.start()
 
 # Start the Discord bot
-TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = os.getenv('BOT_TOKEN')
 bot.run(TOKEN)
