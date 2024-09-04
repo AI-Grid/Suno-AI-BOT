@@ -2,19 +2,18 @@
 
 body {
     font-family: 'Tahoma', sans-serif;
-    background-color: #C0C0C0; /* Windows XP background color */
+    background-image: url('{{ url_for('static', filename='background.jpg') }}'); /* Path to your image */
+    background-size: cover; /* Ensure the image covers the entire page */
+    background-repeat: no-repeat; /* Prevent the image from repeating */
+    background-attachment: fixed; /* Keep the image fixed during scroll */
     color: #000000;
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    background-image: url('{{ url_for('static', filename='background.jpg') }}');
-    background-size: cover; /* Ensures the image covers the container */
-    background-repeat: no-repeat; /* Prevents the image from repeating */
+    min-height: 100vh; /* Ensure the body takes up at least the full viewport height */
 }
-
 .container {
     width: 500px;
     padding: 20px;
