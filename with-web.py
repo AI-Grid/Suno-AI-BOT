@@ -39,6 +39,25 @@ client = suno.Suno(cookie=SUNO_COOKIE)
 # Store user session data
 chat_states = {}
 password_attempts = {}
+AUTHORIZED_USERS = {}
+
+def load_users():
+    """Load authorized users from a file."""
+    global AUTHORIZED_USERS
+    AUTHORIZED_USERS = {}
+    try:
+        with open(USERS_FILE, 'r') as file:
+            for line in file:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                username, credentials = line.split(':', 1)
+                password, limit = credentials.split(':', 1)
+                AUTHORIZED_USERS[username] = (password, int(limit))
+    except FileNotFoundError:
+        pass
+
+load_users()  # Load users on startup
 
 # Helper function to get list of files in the download directory
 def list_files(directory):
@@ -65,12 +84,11 @@ def clear_old_files(directory, days=1):
                 os.remove(file_path)
                 removed_files.append(filename)
     return removed_files
-#define of index.html
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# Route to show list of files in the download directory
 @app.route('/files')
 def files():
     if 'authenticated' not in session:
@@ -79,7 +97,6 @@ def files():
     file_list = list_files(DOWNLOADS_DIR)
     return render_template('files.html', files=file_list)
 
-# Route to clear old files in the download directory
 @app.route('/clear_files', methods=['POST'])
 def clear_files():
     if 'authenticated' not in session:
@@ -90,7 +107,6 @@ def clear_files():
     flash(f'Removed {len(removed_files)} files older than {days} days.')
     return redirect(url_for('files'))
 
-# Route to download a specific file
 @app.route('/download/<filename>')
 def download_file(filename):
     if 'authenticated' not in session:
@@ -103,7 +119,6 @@ def download_file(filename):
         flash('File not found.')
         return redirect(url_for('files'))
 
-# Route to view and edit users.txt
 @app.route('/users', methods=['GET', 'POST'])
 def manage_users():
     if 'authenticated' not in session:
@@ -148,7 +163,6 @@ def manage_users():
 
     return render_template('users.html', users=users)
 
-# Login route to authenticate with the admin secret key
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -161,23 +175,21 @@ def login():
 
     return render_template('login.html')
 
-# Logout route to clear the session
 @app.route('/logout')
 def logout():
     session.pop('authenticated', None)
     return redirect(url_for('login'))
 
-# Discord command to reload users.txt
 @bot.command(name='reload_users')
 async def reload_users(ctx):
     if is_authorized(str(ctx.author)):
+        load_users()  # Reload users from the file
         with open(USERS_FILE, 'r') as f:
             users = f.readlines()
         await ctx.send(f"Users reloaded:\n" + ''.join(users))
     else:
         await ctx.send("You are not authorized to perform this action.")
 
-# Command to start music generation
 @bot.command(name='generate')
 async def generate(ctx):
     if not await is_authorized(str(ctx.author)):
@@ -186,7 +198,6 @@ async def generate(ctx):
     await ctx.send('Select mode: custom or not. 🤔\nType "custom" or "default".')
     chat_states[ctx.author.id] = {}
 
-# Command to stop and clear state
 @bot.command(name='stop')
 async def stop(ctx):
     user_id = ctx.author.id
@@ -196,7 +207,6 @@ async def stop(ctx):
     else:
         await ctx.send('No active session to stop. 🚫')
 
-# Message handler for mode selection and input collection
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
@@ -268,13 +278,17 @@ async def generate_music(message):
             await message.channel.send(file=discord.File(new_file_path, filename=new_file_path))
             
             # Remove the file after sending
-           # os.remove(new_file_path)
+            # os.remove(new_file_path)
 
         chat_states.pop(user_id, None)
         await message.channel.send("Thank you for using the bot! 🎧")
     except Exception as e:
         await message.channel.send(f"❗ Failed to generate music: {e}")
         chat_states.pop(user_id, None)
+
+# Flask authentication helper
+def is_authorized(username):
+    return username in AUTHORIZED_USERS
 
 # Run Flask app in a separate thread
 def run_flask():
