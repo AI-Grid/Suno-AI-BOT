@@ -108,6 +108,7 @@ def manage_users():
     if request.method == 'POST':
         action = request.form.get('action')
         user_data = request.form.get('user_data')
+        new_limit = request.form.get('new_limit')
 
         if action == 'add':
             with open(USERS_FILE, 'a') as f:
@@ -121,6 +122,22 @@ def manage_users():
                     if user_data not in line:
                         f.write(line)
             flash('User deleted successfully.')
+        elif action == 'edit':
+            username, password = user_data.split(':')[:2]
+            updated = False
+            with open(USERS_FILE, 'r') as f:
+                users = f.readlines()
+            with open(USERS_FILE, 'w') as f:
+                for line in users:
+                    if line.startswith(f"{username}:{password}:"):
+                        f.write(f"{username}:{password}:{new_limit}\n")
+                        updated = True
+                    else:
+                        f.write(line)
+            if updated:
+                flash('User limit updated successfully.')
+            else:
+                flash('User not found or invalid data.')
 
     with open(USERS_FILE, 'r') as f:
         users = f.readlines()
