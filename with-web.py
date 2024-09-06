@@ -320,7 +320,7 @@ async def generate_music(message, user_id):
             await message.channel.send(file=discord.File(new_file_path, filename=os.path.basename(new_file_path)))
             
             # Remove the file after sending
-            os.remove(new_file_path)
+           # os.remove(new_file_path)
 
         # Update usage limit if not unlimited (-1)
         user_data = AUTHORIZED_USERS[username]
