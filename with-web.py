@@ -268,14 +268,14 @@ async def on_message(message):
                 chat_states[user_id]['tags'] = "Wait-for-tags"
                 await message.channel.send("🎹 Now send tags.\n\nExample: Classical")
             else:
-                await message.channel.send(f"Working on '{chat_states[user_id]['title']}' 🎧")
+                await message.channel.send(f"Making magic to bring music called '{chat_states[user_id]['title']}' 🎧")
                 await generate_music(message, user_id)
 
             return
 
         if 'tags' not in chat_states[user_id]:
             chat_states[user_id]['tags'] = message.content
-            await message.channel.send(f"Working on '{chat_states[user_id]['title']}' with tags {chat_states[user_id]['tags']} 🎧")
+            await message.channel.send(f"Making magic to bring music called '{chat_states[user_id]['title']}' with tags {chat_states[user_id]['tags']} 🎧")
             await generate_music(message, user_id)
             return
 
@@ -289,7 +289,7 @@ async def generate_music(message, user_id):
         await message.channel.send("User not authorized.")
         return
 
-    await message.channel.send("Generating your music... please wait. 🎶")
+    await message.channel.send("AI and her nanites making a music... It can take even 30 minutes, you may leave this window we will send you notification when its done, please wait. 🎶")
 
     try:
         # Retrieve the prompt, mode, tags, and title
