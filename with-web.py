@@ -146,7 +146,7 @@ def clear_files():
     return redirect(url_for('files'))
 
 # Route to download a specific file
-@app.route('/downfload/<filename>')
+@app.route('/download/<filename>')
 def download_file(filename):
     if 'authenticated' not in session:
         return redirect(url_for('login'))
@@ -212,35 +212,18 @@ async def reload_users(ctx):
     else:
         await ctx.send("You are not authorized to perform this action.")
 
-
 # Command to start music generation
 @bot.command(name='generate')
 async def generate(ctx):
-    user_id = str(ctx.author)
-    
-    # Check if the user is authorized
-    if user_id not in AUTHORIZED_USERS:
-        await ctx.send("You're not in the authorized user list.")
+    if not is_authorized(str(ctx.author)):
+        await ctx.send("You have reached your usage limit or are not authorized.")
         return
 
-    user_data = AUTHORIZED_USERS[user_id]
+    track_usage(str(ctx.author))  # Track usage before proceeding
 
-    # Check if the user has already entered a password and passed the check
-    if user_id not in password_attempts or password_attempts[user_id] != 'authenticated':
-        await ctx.send("Please provide your password to continue:")
-        password_attempts[user_id] = 'waiting_for_password'
-        return
+    await ctx.send('Select mode: custom or not. 🤔\nType "custom" or "default".')
+    chat_states[ctx.author.id] = {}
 
-    # If the user is authenticated, continue with generation
-    if password_attempts[user_id] == 'authenticated':
-        if user_data['limit'] != -1 and user_data['usage'] >= user_data['limit']:
-            await ctx.send("You have reached your usage limit or are not authorized.")
-            return
-
-        track_usage(user_id)  # Track usage before proceeding
-
-        await ctx.send('Select mode: custom or not. 🤔\nType "custom" or "default".')
-        chat_states[ctx.author.id] = {}
 # Command to stop and clear state
 @bot.command(name='stop')
 async def stop(ctx):
@@ -252,30 +235,18 @@ async def stop(ctx):
         await ctx.send('No active session to stop. 🚫')
 
 # Message handler for mode selection and input collection
+# Message handler for mode selection and input collection
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
         return
 
-    user_id = str(message.author)
-    
-    # If the user is waiting to input a password
-    if user_id in password_attempts and password_attempts[user_id] == 'waiting_for_password':
-        password = message.content
-        user_data = AUTHORIZED_USERS.get(user_id)
-        
-        if user_data and password == user_data['password']:
-            password_attempts[user_id] = 'authenticated'
-            await message.channel.send("Password accepted! You may now generate music.")
-        else:
-            await message.channel.send("Incorrect password. Please try again.")
-            password_attempts[user_id] = 'waiting_for_password'
+    user_id = message.author.id
+
+    if message.content.lower() == "!stop":
+        await stop(message)
         return
 
-    # Continue processing normal bot commands and messages
-    await bot.process_commands(message)
-
-    # Check if user is in the state for mode selection and input collection
     if user_id in chat_states:
         user_state = chat_states[user_id]
 
@@ -299,14 +270,17 @@ async def on_message(message):
                 await message.channel.send("🎹 Now send tags (genre or theme). Example: Classical.")
             else:
                 await message.channel.send(f"Making magic to bring music called '{user_state['title']}' 🎧")
-                await generate_music(message, message.author.id)
+                await generate_music(message, user_id)
             return
 
         if 'tags' not in user_state:
             user_state['tags'] = message.content
             await message.channel.send(f"Making magic to bring music called '{user_state['title']}' with tags {user_state['tags']} 🎧")
-            await generate_music(message, message.author.id)
+            await generate_music(message, user_id)
             return
+
+    await bot.process_commands(message)
+
 
 # Function to generate music with Suno AI
 async def generate_music(message, user_id):
