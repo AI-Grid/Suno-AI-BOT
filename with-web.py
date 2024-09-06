@@ -226,20 +226,9 @@ async def generate(ctx):
     user_data = AUTHORIZED_USERS[user_id]
 
     # Check if the user has already entered a password and passed the check
-    if user_id not in password_attempts:
+    if user_id not in password_attempts or password_attempts[user_id] != 'authenticated':
         await ctx.send("Please provide your password to continue:")
         password_attempts[user_id] = 'waiting_for_password'
-        return
-
-    # If waiting for password, verify it now
-    if password_attempts[user_id] == 'waiting_for_password':
-        password = ctx.message.content
-        if password == user_data['password']:
-            password_attempts[user_id] = 'authenticated'
-            await ctx.send("Password accepted! You may now generate music.")
-        else:
-            await ctx.send("Incorrect password. Please try again.")
-            password_attempts[user_id] = 'waiting_for_password'
         return
 
     # If the user is authenticated, continue with generation
@@ -252,7 +241,6 @@ async def generate(ctx):
 
         await ctx.send('Select mode: custom or not. 🤔\nType "custom" or "default".')
         chat_states[ctx.author.id] = {}
-
 # Command to stop and clear state
 @bot.command(name='stop')
 async def stop(ctx):
@@ -269,12 +257,25 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    user_id = message.author.id
-
-    if message.content.lower() == "!stop":
-        await stop(message)
+    user_id = str(message.author)
+    
+    # If the user is waiting to input a password
+    if user_id in password_attempts and password_attempts[user_id] == 'waiting_for_password':
+        password = message.content
+        user_data = AUTHORIZED_USERS.get(user_id)
+        
+        if user_data and password == user_data['password']:
+            password_attempts[user_id] = 'authenticated'
+            await message.channel.send("Password accepted! You may now generate music.")
+        else:
+            await message.channel.send("Incorrect password. Please try again.")
+            password_attempts[user_id] = 'waiting_for_password'
         return
 
+    # Continue processing normal bot commands and messages
+    await bot.process_commands(message)
+
+    # Check if user is in the state for mode selection and input collection
     if user_id in chat_states:
         user_state = chat_states[user_id]
 
@@ -298,17 +299,14 @@ async def on_message(message):
                 await message.channel.send("🎹 Now send tags (genre or theme). Example: Classical.")
             else:
                 await message.channel.send(f"Making magic to bring music called '{user_state['title']}' 🎧")
-                await generate_music(message, user_id)
+                await generate_music(message, message.author.id)
             return
 
         if 'tags' not in user_state:
             user_state['tags'] = message.content
             await message.channel.send(f"Making magic to bring music called '{user_state['title']}' with tags {user_state['tags']} 🎧")
-            await generate_music(message, user_id)
+            await generate_music(message, message.author.id)
             return
-
-    await bot.process_commands(message)
-
 
 # Function to generate music with Suno AI
 async def generate_music(message, user_id):
