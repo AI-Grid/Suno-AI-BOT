@@ -243,8 +243,7 @@ async def on_message(message):
     user_id = message.author.id
     
     if message.content.lower() == "!stop":
-        await stop(message)
-        await message.channel.send('Session successfully terminated. You can start again with !generate.')
+        await stop(ctx)
         return
 
     if user_id in chat_states:
