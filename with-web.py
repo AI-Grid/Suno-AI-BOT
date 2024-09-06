@@ -206,7 +206,7 @@ def manage_users():
 # Discord command to reload users.txt
 @bot.command(name='reload_users')
 async def reload_users(ctx):
-    if str(ctx.author) == "tinycopy":  # Assuming tinycopy is the bot owner
+    if str(ctx.author) == "tasiaai":  # Assuming tinycopy is the bot owner
         load_users()
         await ctx.send("Users reloaded.")
     else:
@@ -230,9 +230,9 @@ async def stop(ctx):
     user_id = ctx.author.id
     if user_id in chat_states:
         del chat_states[user_id]  # Clear the user's state
-        await message.channel.send('Generation stopped. 🚫 You can start again with !generate.')
+        await ctx.send('Generation stopped. 🚫 You can start again with !generate.')
     else:
-        await message.channel.send('No active session to stop. 🚫')
+        await ctx.send('No active session to stop. 🚫')
 
 # Message handler for mode selection and input collection
 @bot.event
