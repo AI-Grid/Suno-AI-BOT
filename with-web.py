@@ -230,9 +230,9 @@ async def stop(ctx):
     user_id = ctx.author.id
     if user_id in chat_states:
         del chat_states[user_id]  # Clear the user's state
-        await ctx.send('Generation stopped. 🚫 You can start again with !generate.')
+        await message.channel.send('Generation stopped. 🚫 You can start again with !generate.')
     else:
-        await ctx.send('No active session to stop. 🚫')
+        await message.channel.send('No active session to stop. 🚫')
 
 # Message handler for mode selection and input collection
 @bot.event
