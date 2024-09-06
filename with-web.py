@@ -243,7 +243,7 @@ async def on_message(message):
     user_id = message.author.id
     
     if message.content.lower() == "!stop":
-        await stop(ctx)
+        await stop(message)
         return
 
     if user_id in chat_states:
