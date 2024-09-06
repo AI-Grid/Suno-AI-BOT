@@ -282,18 +282,23 @@ async def on_message(message):
     await bot.process_commands(message)
 
 # Function to generate music with Suno AI
-async def generate_music(message):
-    user_id = message.author.id
+async def generate_music(message, user_id):
     username = message.author.name
 
+    if username not in AUTHORIZED_USERS:
+        await message.channel.send("User not authorized.")
+        return
+
     await message.channel.send("Generating your music... please wait. 🎶")
+
     try:
+        # Retrieve the prompt, mode, tags, and title
         prompt = chat_states[user_id]['lyrics']
         is_custom = chat_states[user_id]['mode'] == 'custom'
         tags = chat_states[user_id].get('tags', None)
         title = chat_states[user_id].get('title', 'generated_music')  # Default title if not provided
 
-        # Generate Music
+        # Generate music with Suno AI
         songs = await asyncio.to_thread(
             client.generate,
             prompt=prompt,
@@ -302,28 +307,35 @@ async def generate_music(message):
             wait_audio=True
         )
 
+        # Save and send the generated songs
         for index, song in enumerate(songs):
+            # Download the generated song
             file_path = await asyncio.to_thread(client.download, song=song)
             
-            # Construct the new file name using the title and index
-            new_file_path = f"{title}_v{index + 1}.mp3"
+            # Construct a new file name using the title and index, and save in the download directory
+            new_file_path = os.path.join(DOWNLOADS_DIR, f"{title}_v{index + 1}.mp3")
             os.rename(file_path, new_file_path)
             
             # Upload the file to Discord
-            await message.channel.send(file=discord.File(new_file_path, filename=new_file_path))
+            await message.channel.send(file=discord.File(new_file_path, filename=os.path.basename(new_file_path)))
             
             # Remove the file after sending
             os.remove(new_file_path)
 
-        # Decrement usage limit if not unlimited (-1)
-        if user_data[username]['limit'] != -1:
-            update_usage_limit(username)
+        # Update usage limit if not unlimited (-1)
+        user_data = AUTHORIZED_USERS[username]
+        if user_data['limit'] != -1:
+            user_data['usage'] += 1
 
+        # Clear chat state after completion
         chat_states.pop(user_id, None)
         await message.channel.send("Thank you for using the bot! 🎧")
+        
     except Exception as e:
         await message.channel.send(f"❗ Failed to generate music: {e}")
+        # Clear chat state in case of error
         chat_states.pop(user_id, None)
+
 
 # Flask app running in a thread
 def run_flask():
