@@ -214,15 +214,45 @@ async def reload_users(ctx):
 
 # Command to start music generation
 @bot.command(name='generate')
+# Command to start music generation
+@bot.command(name='generate')
 async def generate(ctx):
-    if not is_authorized(str(ctx.author)):
-        await ctx.send("You have reached your usage limit or are not authorized.")
+    user_id = str(ctx.author)
+    
+    # Check if the user is authorized
+    if user_id not in AUTHORIZED_USERS:
+        await ctx.send("You're not in the authorized user list.")
         return
 
-    track_usage(str(ctx.author))  # Track usage before proceeding
+    user_data = AUTHORIZED_USERS[user_id]
 
-    await ctx.send('Select mode: custom or not. 🤔\nType "custom" or "default".')
-    chat_states[ctx.author.id] = {}
+    # Check if the user has already entered a password and passed the check
+    if user_id not in password_attempts:
+        await ctx.send("Please provide your password to continue:")
+        password_attempts[user_id] = 'waiting_for_password'
+        return
+
+    # If waiting for password, verify it now
+    if password_attempts[user_id] == 'waiting_for_password':
+        password = ctx.message.content
+        if password == user_data['password']:
+            password_attempts[user_id] = 'authenticated'
+            await ctx.send("Password accepted! You may now generate music.")
+        else:
+            await ctx.send("Incorrect password. Please try again.")
+            password_attempts[user_id] = 'waiting_for_password'
+        return
+
+    # If the user is authenticated, continue with generation
+    if password_attempts[user_id] == 'authenticated':
+        if user_data['limit'] != -1 and user_data['usage'] >= user_data['limit']:
+            await ctx.send("You have reached your usage limit or are not authorized.")
+            return
+
+        track_usage(user_id)  # Track usage before proceeding
+
+        await ctx.send('Select mode: custom or not. 🤔\nType "custom" or "default".')
+        chat_states[ctx.author.id] = {}
 
 # Command to stop and clear state
 @bot.command(name='stop')
@@ -234,7 +264,6 @@ async def stop(ctx):
     else:
         await ctx.send('No active session to stop. 🚫')
 
-# Message handler for mode selection and input collection
 # Message handler for mode selection and input collection
 @bot.event
 async def on_message(message):
