@@ -146,7 +146,7 @@ def clear_files():
     return redirect(url_for('files'))
 
 # Route to download a specific file
-@app.route('/download/<filename>')
+@app.route('/downfload/<filename>')
 def download_file(filename):
     if 'authenticated' not in session:
         return redirect(url_for('login'))
@@ -212,8 +212,7 @@ async def reload_users(ctx):
     else:
         await ctx.send("You are not authorized to perform this action.")
 
-# Command to start music generation
-@bot.command(name='generate')
+
 # Command to start music generation
 @bot.command(name='generate')
 async def generate(ctx):
