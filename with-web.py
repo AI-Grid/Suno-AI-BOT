@@ -329,7 +329,7 @@ async def generate_music(message, user_id):
 
         # Clear chat state after completion
         chat_states.pop(user_id, None)
-        await message.channel.send("Thank you for using the bot! 🎧")
+        await message.channel.send("Thank you for making songs with us! 🎧")
         
     except Exception as e:
         await message.channel.send(f"❗ Failed to generate music: {e}")
