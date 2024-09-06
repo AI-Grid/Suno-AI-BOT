@@ -235,50 +235,52 @@ async def stop(ctx):
         await ctx.send('No active session to stop. 🚫')
 
 # Message handler for mode selection and input collection
+# Message handler for mode selection and input collection
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
         return
 
     user_id = message.author.id
-    
+
     if message.content.lower() == "!stop":
         await stop(message)
         return
 
     if user_id in chat_states:
-        if 'mode' not in chat_states[user_id]:
+        user_state = chat_states[user_id]
+
+        if 'mode' not in user_state:
             if message.content.lower() == "custom":
-                chat_states[user_id]['mode'] = 'custom'
+                user_state['mode'] = 'custom'
                 await message.channel.send("🎤 Send lyrics first.")
             elif message.content.lower() == "default":
-                chat_states[user_id]['mode'] = 'default'
+                user_state['mode'] = 'default'
                 await message.channel.send("🎤 Send song description.")
             return
 
-        if 'lyrics' not in chat_states[user_id]:
-            chat_states[user_id]['lyrics'] = message.content
+        if 'lyrics' not in user_state:
+            user_state['lyrics'] = message.content
             await message.channel.send("🎼 Please provide a title for your song.")
             return
 
-        if 'title' not in chat_states[user_id]:
-            chat_states[user_id]['title'] = message.content
-            if chat_states[user_id]['mode'] == 'custom':
-                chat_states[user_id]['tags'] = "Wait-for-tags"
-                await message.channel.send("🎹 Now send tags.\n\nExample: Classical")
+        if 'title' not in user_state:
+            user_state['title'] = message.content
+            if user_state['mode'] == 'custom':
+                await message.channel.send("🎹 Now send tags (genre or theme). Example: Classical.")
             else:
-                await message.channel.send(f"Making magic to bring music called '{chat_states[user_id]['title']}' 🎧")
+                await message.channel.send(f"Making magic to bring music called '{user_state['title']}' 🎧")
                 await generate_music(message, user_id)
-
             return
 
-        if 'tags' not in chat_states[user_id]:
-            chat_states[user_id]['tags'] = message.content
-            await message.channel.send(f"Making magic to bring music called '{chat_states[user_id]['title']}' with tags {chat_states[user_id]['tags']} 🎧")
+        if 'tags' not in user_state:
+            user_state['tags'] = message.content
+            await message.channel.send(f"Making magic to bring music called '{user_state['title']}' with tags {user_state['tags']} 🎧")
             await generate_music(message, user_id)
             return
 
     await bot.process_commands(message)
+
 
 # Function to generate music with Suno AI
 async def generate_music(message, user_id):
