@@ -282,24 +282,48 @@ async def on_message(message):
     await bot.process_commands(message)
 
 # Function to generate music with Suno AI
-async def generate_music(message, user_id):
-    user_data = chat_states[user_id]
-    mode = user_data['mode']
-    lyrics = user_data['lyrics']
-    title = user_data['title']
-    tags = user_data.get('tags', None)
+async def generate_music(message):
+    user_id = message.author.id
+    username = message.author.name
 
-    if mode == 'custom':
-        result = client.generate_custom_music(lyrics, title, tags)
-    else:
-        result = client.generate_default_music(title, lyrics)
+    await message.channel.send("Generating your music... please wait. 🎶")
+    try:
+        prompt = chat_states[user_id]['lyrics']
+        is_custom = chat_states[user_id]['mode'] == 'custom'
+        tags = chat_states[user_id].get('tags', None)
+        title = chat_states[user_id].get('title', 'generated_music')  # Default title if not provided
 
-    file_path = os.path.join(DOWNLOADS_DIR, f"{title}.mp3")
-    with open(file_path, 'wb') as f:
-        f.write(result)
+        # Generate Music
+        songs = await asyncio.to_thread(
+            client.generate,
+            prompt=prompt,
+            tags=tags if is_custom else None,
+            is_custom=is_custom,
+            wait_audio=True
+        )
 
-    await message.channel.send(f"Your music is ready! Download it here: {file_path}")
-    del chat_states[user_id]  # Clear state after completion
+        for index, song in enumerate(songs):
+            file_path = await asyncio.to_thread(client.download, song=song)
+            
+            # Construct the new file name using the title and index
+            new_file_path = f"{title}_v{index + 1}.mp3"
+            os.rename(file_path, new_file_path)
+            
+            # Upload the file to Discord
+            await message.channel.send(file=discord.File(new_file_path, filename=new_file_path))
+            
+            # Remove the file after sending
+            os.remove(new_file_path)
+
+        # Decrement usage limit if not unlimited (-1)
+        if user_data[username]['limit'] != -1:
+            update_usage_limit(username)
+
+        chat_states.pop(user_id, None)
+        await message.channel.send("Thank you for using the bot! 🎧")
+    except Exception as e:
+        await message.channel.send(f"❗ Failed to generate music: {e}")
+        chat_states.pop(user_id, None)
 
 # Flask app running in a thread
 def run_flask():
